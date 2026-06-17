@@ -1,0 +1,13 @@
+{
+  "name": "easyqueue",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @easyqueue/desktop dev",
+    "build": "pnpm --filter @easyqueue/desktop build",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r clean"
+  }
+}

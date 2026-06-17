@@ -1,0 +1,23 @@
+appId: com.easyqueue.app
+productName: EasyQueue
+directories:
+  output: release
+  buildResources: resources
+files:
+  - dist/**/*
+  - resources/**/*
+  - package.json
+win:
+  target: nsis
+  icon: resources/icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+linux:
+  target:
+    - AppImage
+    - deb
+mac:
+  target:
+    - dmg
+    - zip

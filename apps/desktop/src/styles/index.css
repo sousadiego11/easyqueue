@@ -1,0 +1,132 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 262 10% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 262 10% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 262 10% 15%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 262 20% 96%;
+    --secondary-foreground: 262 10% 15%;
+    --muted: 262 15% 94%;
+    --muted-foreground: 262 8% 46%;
+    --accent: 262 30% 92%;
+    --accent-foreground: 262 10% 15%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 262 15% 88%;
+    --input: 262 15% 88%;
+    --ring: 262 83% 58%;
+    --radius: 0.5rem;
+    --sidebar-width: 240px;
+    --detail-width: 420px;
+    --sidebar: 262 20% 97%;
+    --sidebar-foreground: 262 10% 15%;
+    --sidebar-primary: 262 83% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 262 30% 92%;
+    --sidebar-accent-foreground: 262 10% 15%;
+    --sidebar-border: 262 15% 88%;
+    --sidebar-ring: 262 83% 58%;
+  }
+
+  .dark {
+    --background: 225 45% 6%;
+    --foreground: 220 20% 95%;
+
+    --card: 226 40% 8%;
+    --card-foreground: 220 20% 95%;
+
+    --popover: 226 40% 8%;
+    --popover-foreground: 220 20% 95%;
+
+    --primary: 258 100% 67%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 224 35% 10%;
+    --secondary-foreground: 220 20% 95%;
+
+    --muted: 224 35% 10%;
+    --muted-foreground: 220 10% 65%;
+
+    --accent: 226 30% 14%;
+    --accent-foreground: 220 20% 95%;
+
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 224 30% 16%;
+    --input: 224 30% 16%;
+
+    --ring: 258 100% 67%;
+
+    --sidebar: 226 50% 5%;
+    --sidebar-foreground: 220 20% 95%;
+    --sidebar-primary: 258 100% 67%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 228 35% 12%;
+    --sidebar-accent-foreground: 220 20% 95%;
+    --sidebar-border: 224 30% 16%;
+  }
+
+  .theme {
+    --font-heading: "Inter", sans-serif;
+    --font-sans: "Inter", sans-serif;
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html {
+    @apply font-sans;
+  }
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
+  border-radius: 3px;
+}
+
+.app-drag-region {
+  -webkit-app-region: drag;
+}
+
+.app-no-drag {
+  -webkit-app-region: no-drag;
+}

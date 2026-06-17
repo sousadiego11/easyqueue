@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "strict": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "allowImportingTsExtensions": true,
+        "resolveJsonModule": true,
+        "baseUrl": ".",
+        "paths": {
+            "@easyqueue/core": [
+                "packages/core/src/index.ts"
+            ],
+            "@easyqueue/shared": [
+                "packages/shared/src/index.ts"
+            ],
+            "@easyqueue/provider-sqs": [
+                "packages/provider-sqs/src/index.ts"
+            ],
+            "@easyqueue/provider-rabbitmq": [
+                "packages/provider-rabbitmq/src/index.ts"
+            ]
+        }
+    }
+}
