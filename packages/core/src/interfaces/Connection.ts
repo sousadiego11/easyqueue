@@ -1,6 +1,5 @@
 export interface SQSConfig extends Record<string, unknown> {
   region: string
-  queueUrl: string
   accessKeyId: string
   secretAccessKey: string
 }

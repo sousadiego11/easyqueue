@@ -67,26 +67,12 @@ export class RabbitMqClient implements QueueClient {
   }
 
   async disconnect(): Promise<void> {
-    this.requeuePendingMessages()
     this.fetchedMessages.clear()
-    try {
-      await this.channel?.close()
-    } catch { }
-    try {
-      await this.channelModel?.close()
-    } catch { }
+    try { await this.channel?.close() } catch { }
+    try { await this.channelModel?.close() } catch { }
     this.channel = null
     this.channelModel = null
     this._connected = false
-  }
-
-  private requeuePendingMessages(): void {
-    if (!this.channel || this.fetchedMessages.size === 0) return
-    for (const msg of this.fetchedMessages.values()) {
-      try {
-        this.channel.nack(msg, false, true)
-      } catch { }
-    }
   }
 
   private getManagementAuth(): { base: string; auth: string } {
@@ -123,7 +109,6 @@ export class RabbitMqClient implements QueueClient {
   async listMessages(queue: string, limit = 100): Promise<QueueMessage[]> {
     if (!this.channel) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
 
-    this.requeuePendingMessages()
     this.fetchedMessages.clear()
 
     const messages: QueueMessage[] = []
@@ -141,11 +126,10 @@ export class RabbitMqClient implements QueueClient {
   async publish(request: PublishRequest): Promise<void> {
     if (!this.channel) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
 
-    const exchange = ""
     const buffer = Buffer.from(JSON.stringify(request.payload))
     const messageId = crypto.randomUUID()
 
-    const published = this.channel.publish(exchange, request.queue, buffer, {
+    const published = this.channel.publish("", request.queue, buffer, {
       messageId,
       contentType: "application/json",
       headers: request.headers,

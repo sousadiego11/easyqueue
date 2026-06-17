@@ -28,7 +28,6 @@ type ProviderField = {
 const providerFields: Record<string, ProviderField[]> = {
   sqs: [
     { key: "region", label: "Region", placeholder: "us-east-1", required: true },
-    { key: "queueUrl", label: "Queue URL", placeholder: "https://sqs.us-east-1.amazonaws.com/...", required: true },
     { key: "accessKeyId", label: "Access Key ID", placeholder: "AKIA...", required: true },
     { key: "secretAccessKey", label: "Secret Access Key", placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", required: true, type: "password" },
   ],
