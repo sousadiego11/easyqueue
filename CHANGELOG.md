@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/sousadiego11/easyqueue/compare/v1.1.0...v1.1.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* adjust release please ([29c0fb4](https://github.com/sousadiego11/easyqueue/commit/29c0fb48132b9c423e16b45060bd147232356cb4))
+
 ## [1.1.0](https://github.com/sousadiego11/easyqueue/compare/v1.0.0...v1.1.0) (2026-06-18)
 
 
