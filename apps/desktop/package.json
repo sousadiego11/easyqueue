@@ -1,8 +1,11 @@
 {
   "name": "@easyqueue/desktop",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Postman for Message Brokers — inspect, publish, and debug queue messages",
-  "author": "EasyQueue Contributors",
+  "author": {
+    "name": "Diego Sousa",
+    "email": "diegointeriores11@gmail.com"
+  },
   "repository": "github:sousadiego11/easyqueue",
   "private": true,
   "type": "module",
