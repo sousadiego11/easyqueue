@@ -58,23 +58,10 @@ It is built for developers who value speed, clarity, and local tooling. No cloud
 
 ## Screenshots
 
-> Screenshots will be added as the project matures.
-
-### Connections
-
-![Connections](docs/images/connections.png)
-
-### Queue Explorer
-
-![Queue Explorer](docs/images/queue-explorer.png)
-
-### Message Detail
-
-![Message Detail](docs/images/message-detail.png)
-
-### Publisher
-
-![Publisher](docs/images/publisher.png)
+<p align="center">
+  <img src="./DARK.png" width="45%" alt="Dark theme" />
+  <img src="./LIGHT.png" width="45%" alt="Light theme" />
+</p>
 
 ## Installation
 
