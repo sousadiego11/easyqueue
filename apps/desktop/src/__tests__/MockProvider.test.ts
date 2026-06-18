@@ -24,7 +24,7 @@ describe("MockProvider", () => {
     const p = new MockProvider({ queues: ["a", "b"] })
     p.queues = ["a", "b"]
     const q = await p.listQueues()
-    expect(q).toEqual(["a", "b"])
+    expect(q).toEqual([{ name: "a" }, { name: "b" }])
   })
 
   it("publish adds a message to the queue", async () => {

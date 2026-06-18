@@ -1,266 +1,149 @@
-# AGENTS.md
+# AGENTS.md — EasyQueue (Monorepo Root)
 
-# EasyQueue
-
-EasyQueue is a desktop application inspired by Postman, but for message brokers.
-
-The goal is to help developers inspect, publish and debug queue messages using a unified interface.
-
-The application is intended to run locally.
+Este arquivo descreve o projeto como um todo.
+Para detalhes operacionais de cada pacote/aplicativo, veja o `AGENTS.md` dentro de cada subdiretório.
 
 ---
 
-# Product Vision
+## O que é
 
-EasyQueue is a developer tool.
-
-It should feel similar to:
-
-* Postman
-* DBeaver
-* Insomnia
-
-The user should be able to connect to a broker and immediately start working.
-
-The project values developer experience over enterprise architecture.
+EasyQueue é um aplicativo desktop para inspecionar, publicar e debugar mensagens de fila (SQS, RabbitMQ) — como um Postman, mas para message brokers.
 
 ---
 
-# Philosophy
+## Stack
 
-Always prefer:
-
-* simplicity
-* readability
-* maintainability
-
-Avoid:
-
-* DDD
-* Clean Architecture
-* CQRS
-* Repositories
-* Use Cases
-* Service layers
-* Generic abstractions without immediate value
-* Dependency Injection frameworks
-
-Only introduce abstractions when there is a real use case.
+| Camada | Tecnologia |
+|---|---|
+| Frontend | React 19 + TypeScript + Vite |
+| UI | Tailwind CSS + shadcnUI + Lucide React |
+| Estado | Zustand v5 |
+| Desktop | Electron (via Vite plugin) |
+| Monorepo | pnpm workspaces (lockfile v9) |
+| Testes unitários | Vitest (cada app/package) |
+| Testes e2e | Playwright (`apps/desktop`) |
+| CI | GitHub Actions (matrix: vitest + playwright) |
 
 ---
 
-# Architecture
-
-The application is divided into:
+## Monorepo Structure
 
 ```text
 apps/
-    desktop/
+  desktop/          ← Electron + React + Vite (aplicação desktop)
 
 packages/
-    core/
-    provider-sqs/
-    provider-rabbitmq/
-    shared/
+  core/             ← Contratos comuns (QueueClient, QueueMessage, Connection)
+  provider-sqs/     ← Provider AWS SQS
+  provider-rabbitmq/ ← Provider RabbitMQ
+  shared/           ← Utilitários compartilhados
 ```
 
-Dependencies:
+Dependências:
 
 ```text
 core
-    ↑
+  ↑
 
 providers
-    ↑
+  ↑
 
 desktop
 ```
 
-Rules:
-
-* core must never depend on providers
-* providers may depend on core
-* desktop may depend on everything
-* shared must not depend on providers
-
----
-
-# Core
-
-Core contains only common contracts.
-
-Core should stay very small.
-
-Current interfaces:
-
-* QueueClient
-* QueueMessage
-* Connection
-
-Do not create registries, managers or factories unless explicitly requested.
+Regras:
+- `core` nunca depende de providers
+- Providers dependem de `core`
+- `desktop` depende de tudo
+- `shared` não depende de providers
 
 ---
 
-# QueueClient
+## Core
 
-QueueClient is the main abstraction.
+Contém apenas contratos comuns:
 
-Every provider must implement it.
+- `QueueClient` — interface principal (connect, disconnect, listQueues, publish, startListening, stopListening)
+- `QueueMessage` — modelo normalizado de mensagem
+- `Connection` — informação de conexão por provider
 
-Responsibilities:
-
-* connect
-* disconnect
-* listQueues
-* publish
-* startListening
-* stopListening
-* emit normalized messages
-
-The desktop application should never know provider implementation details.
+Nada de registries, managers ou factories.
 
 ---
 
-# Message Model
+## Providers
 
-All providers must normalize incoming messages.
+Cada provider é isolado e implementa `QueueClient`.
 
-Internal model:
+Responsabilidades:
+- autenticação (mecanismo natural de cada plataforma)
+- conexão
+- publicação
+- escuta (mecanismo nativo: SQS long polling, RabbitMQ channel.consumes)
+- mapeamento de objetos do SDK para `QueueMessage`
 
-```ts
-QueueMessage
+Provider SDK objects nunca vazam pra UI. Quando necessário, armazenar em `raw`.
+
+---
+
+## Desktop
+
+Ver `apps/desktop/AGENTS.md` para detalhes completos.
+
+Pontos principais:
+- Single-page app (sem React Router)
+- Layout em painéis redimensionáveis (`react-resizable-panels`)
+- Comunicação com backend via `queueApi` bridge (Electron preload ou mock e2e)
+- Tema dark/light com classe `dark` no `<html>`
+- Conexões persistidas em memória (mock) ou via backend
+- Testes e2e com Playwright + mock injetado via `addInitScript`
+
+---
+
+## Testes
+
+```bash
+# Todos os testes
+pnpm test -r               # vitest em todos os pacotes
+pnpm test:e2e              # e2e em apps/desktop
+
+# CI roda em paralelo:
+#   unit  → vitest em apps/desktop + packages
+#   e2e   → playwright em apps/desktop
 ```
 
-Provider SDK objects must never leak into the UI.
+---
 
-If necessary, store the original provider object inside:
+## Filosofia
 
-```ts
-raw
-```
+- Simplicidade > arquitetura
+- Evitar DDD, CQRS, Clean Architecture, camadas de serviço, factories genéricas
+- Abstrações só quando houver um caso de uso real
+- Preferir interfaces, composição, classes pequenas, nomes explícitos, arquivos pequenos
+- Evitar herança, classes utilitárias gigantes, helpers genéricos, otimização prematura
+- Preferir dependências leves — antes de adicionar uma lib, pensar se dá pra fazer com stdlib
 
 ---
 
-# Providers
+## Roadmap
 
-Every provider should be isolated.
+### Feito
+- [x] SQS provider (connect, list, publish, consume)
+- [x] RabbitMQ provider (connect, list, publish, consume)
+- [x] Normalização de mensagens via `QueueMessage`
+- [x] Tema dark/light
+- [x] Visualizador JSON
+- [x] Busca e filtro de mensagens
+- [x] Painel de detalhe da mensagem
+- [x] Replay / Delete de mensagens
+- [x] Testes e2e (Playwright) + CI
 
-A provider is responsible for:
-
-* authentication
-* connection
-* publishing
-* listening
-* mapping provider objects to QueueMessage
-
-Authentication should use the natural mechanism of each platform.
-
-Examples:
-
-AWS:
-
-* default credential chain
-* explicit credentials only if provided
-
-RabbitMQ:
-
-* URI
-
----
-
-# Listening
-
-Do not use cron jobs.
-
-Use the native mechanism of each broker.
-
-Examples:
-
-SQS:
-
-* long polling
-
-RabbitMQ:
-
-* channel.consumes
-
-The UI should not know how listening works.
-
----
-
-# UI
-
-The UI should remain simple.
-
-Main pages:
-
-* Connections
-* Queues
-* Messages
-* Publisher
-
-Avoid complex state management unless necessary.
-
-Prefer local state.
-
----
-
-# Coding Style
-
-Prefer:
-
-* interfaces
-* composition
-* small classes
-* explicit names
-* small files
-
-Avoid:
-
-* inheritance hierarchies
-* giant utility classes
-* helper functions with generic names
-* premature optimization
-
----
-
-# Dependencies
-
-Prefer lightweight dependencies.
-
-Before adding a library, consider whether the functionality can be implemented with the standard library.
-
----
-
-# Testing
-
-Prefer unit tests for provider behavior.
-
-Avoid overengineering test infrastructure.
-
----
-
-# Refactoring
-
-When modifying existing code:
-
-* preserve simplicity
-* reduce duplication
-* remove dead code
-* avoid introducing new layers
-
-Refactor only when it improves readability.
-
----
-
-# AI Agent Instructions
-
-Before implementing any feature:
-
-1. Understand the simplest solution.
-2. Check whether an abstraction already exists.
-3. Avoid creating new architectural layers.
-4. Keep the project plugin-friendly.
-5. Generate code that a single developer can easily maintain.
-
-If multiple solutions exist, always choose the simpler one.
+### Próximos
+- [ ] Message re-drive (re-publicar em fila diferente)
+- [ ] Conexões persistidas (salvar config)
+- [ ] Azure Service Bus provider
+- [ ] Redis Streams provider
+- [ ] Google Pub/Sub provider
+- [ ] Message diff
+- [ ] Message replay histórico
+- [ ] Plugin system para providers de terceiros
