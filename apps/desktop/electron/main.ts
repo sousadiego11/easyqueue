@@ -12,10 +12,13 @@ const isDev = process.env.NODE_ENV === "development" || !app.isPackaged
 let mainWindow: BrowserWindow | null = null
 
 function createWindow(): void {
-  const iconPath = path.join(__dirname, "../resources/icon.svg")
+  const iconPath = path.join(app.getAppPath(), "resources", "icon.png")
+  const fallbackPath = path.join(app.getAppPath(), "resources", "icon.svg")
   const icon = fs.existsSync(iconPath)
     ? nativeImage.createFromPath(iconPath)
-    : undefined
+    : fs.existsSync(fallbackPath)
+      ? nativeImage.createFromPath(fallbackPath)
+      : undefined
 
   mainWindow = new BrowserWindow({
     width: 1280,
