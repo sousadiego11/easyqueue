@@ -3,6 +3,7 @@ import type { ConnectionInfo } from "@/api/queueApi"
 import type { Provider } from "@easyqueue/core"
 import { queueApi } from "@/api/queueApi"
 import { useAppStore } from "./useAppStore"
+import { toast } from "sonner"
 
 interface ConnectionStore {
   connections: ConnectionInfo[]
@@ -96,6 +97,7 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
         appState.setCurrentConnection(updated)
       }
 
+      toast.info(connection.connected ? "Disconnected Succesfully" : "Connected Succesfully")
       return updated
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to toggle connection"
