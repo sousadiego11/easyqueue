@@ -7,9 +7,9 @@ files:
   - dist/**/*
   - resources/**/*
   - package.json
+icon: resources/icon.svg
 win:
   target: nsis
-  icon: resources/icon.ico
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
