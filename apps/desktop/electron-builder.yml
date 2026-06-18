@@ -17,6 +17,8 @@ linux:
   target:
     - AppImage
     - deb
+deb:
+  packageName: easyqueue
 mac:
   target:
     - dmg
