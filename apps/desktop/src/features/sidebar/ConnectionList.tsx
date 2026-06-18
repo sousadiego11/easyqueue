@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { useAppStore } from "@/stores/useAppStore"
 import { useConnectionStore } from "@/stores/useConnectionStore"
-import { Plug, Plus, Pencil, Power } from "lucide-react"
+import { Plug, Plus, Pencil, Power, PowerOff } from "lucide-react"
 import sqsIcon from "@/icons/SQS.svg"
 import rabbitIcon from "@/icons/RABBIT.svg"
 
@@ -56,7 +56,7 @@ function ConnectionList() {
                 className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:text-foreground"
                 aria-label={c.connected ? `Disconnect ${c.name}` : `Connect ${c.name}`}
               >
-                <Power className="h-3 w-3" />
+                {c.connected ? <PowerOff className="h-3 w-3" /> : <Power className="h-3 w-3" />}
               </button>
               <span
                 className={`w-2 h-2 rounded-full flex-shrink-0 ${c.connected ? "bg-[#22c55e]" : "bg-[#f87171]"

@@ -23,7 +23,7 @@ function Sidebar() {
       <div className="p-4 border-t border-sidebar-border">
         <Button
           variant="outline"
-          size="sm"
+          size="lg"
           className="w-full"
           onClick={() => useAppStore.getState().openNewConnectionModal()}
         >
