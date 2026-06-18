@@ -2,7 +2,7 @@ import { QueueClient, type Provider } from "@easyqueue/core"
 import type { ConnectionInfo } from "@easyqueue/shared"
 import { RabbitMqClient } from "@easyqueue/provider-rabbitmq"
 import { AWSSQSClient } from "@easyqueue/provider-sqs"
-import { app } from "electron"
+import { app, safeStorage } from "electron"
 import path from "path"
 import fs from "fs"
 
@@ -16,16 +16,37 @@ interface StoredConnection {
 export class ConnectionService {
   private clients = new Map<string, QueueClient>()
   private filePath: string
+  private legacyPath: string
 
   constructor(filePath?: string) {
-    this.filePath = filePath ?? path.join(app.getPath("userData"), "connections.json")
+    const base = filePath ?? path.join(app.getPath("userData"), "connections")
+    this.filePath = base + ".enc"
+    this.legacyPath = base + ".json"
+  }
+
+  private get encryptionAvailable(): boolean {
+    return safeStorage.isEncryptionAvailable()
   }
 
   async loadFromDisk(): Promise<void> {
     let stored: StoredConnection[]
+
     try {
-      const raw = fs.readFileSync(this.filePath, "utf-8")
-      stored = JSON.parse(raw)
+      if (fs.existsSync(this.filePath)) {
+        if (this.encryptionAvailable) {
+          const data = fs.readFileSync(this.filePath)
+          const json = safeStorage.decryptString(data)
+          stored = JSON.parse(json)
+        } else {
+          const raw = fs.readFileSync(this.filePath, "utf-8")
+          stored = JSON.parse(raw)
+        }
+      } else if (fs.existsSync(this.legacyPath)) {
+        const raw = fs.readFileSync(this.legacyPath, "utf-8")
+        stored = JSON.parse(raw)
+      } else {
+        return
+      }
     } catch {
       return
     }
@@ -51,7 +72,14 @@ export class ConnectionService {
     }
     const dir = path.dirname(this.filePath)
     fs.mkdirSync(dir, { recursive: true })
-    fs.writeFileSync(this.filePath, JSON.stringify(stored, null, 2))
+    const json = JSON.stringify(stored)
+
+    if (this.encryptionAvailable) {
+      const encrypted = safeStorage.encryptString(json)
+      fs.writeFileSync(this.filePath, encrypted)
+    } else {
+      fs.writeFileSync(this.filePath, json, "utf-8")
+    }
   }
 
   async connect(
