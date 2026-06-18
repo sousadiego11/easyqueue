@@ -5,6 +5,11 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to use (e.g., 1.2.3). Defaults to tag name when triggered by a tag."
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -52,10 +57,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Determine release tag
+        id: release
+        shell: bash
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=v${{ inputs.version }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Upload assets to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ steps.release.outputs.tag }}
           files: |
             apps/desktop/release/**/*.AppImage
             apps/desktop/release/**/*.deb
