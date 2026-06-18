@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { useAppStore } from "@/stores/useAppStore"
-import { Moon, Sun, Settings } from "lucide-react"
+import { Moon, Sun } from "lucide-react"
 
 function Header() {
   const theme = useAppStore((s) => s.theme)
@@ -19,9 +19,6 @@ function Header() {
         {currentConnection?.connected ? "Connected" : "Disconnected"}
       </span>
       <div className="flex-1" />
-      <Button variant="ghost" size="icon" aria-label="Settings">
-        <Settings className="h-4 w-4" />
-      </Button>
       <Button
         variant="ghost"
         size="icon"
