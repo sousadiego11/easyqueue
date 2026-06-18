@@ -2,6 +2,7 @@ import { create } from "zustand"
 import type { ConnectionInfo } from "@/api/queueApi"
 import type { Provider } from "@easyqueue/core"
 import { queueApi } from "@/api/queueApi"
+import { useAppStore } from "./useAppStore"
 
 interface ConnectionStore {
   connections: ConnectionInfo[]
@@ -89,6 +90,12 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
         connections: s.connections.map((c) => (c.id === id ? updated : c)),
         isLoading: false,
       }))
+
+      const appState = useAppStore.getState()
+      if (appState.currentConnection?.id === id) {
+        appState.setCurrentConnection(updated)
+      }
+
       return updated
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to toggle connection"

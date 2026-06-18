@@ -43,6 +43,7 @@ export class RabbitMqClient implements QueueClient {
 
     this.channel.on("error", async (err) => {
       console.error("[RabbitMqClient] Channel error:", err)
+      this.fetchedMessages.clear()
       this.channel = null
       if (!this._connected) return
       await new Promise(res => setTimeout(res, 500))
@@ -61,13 +62,14 @@ export class RabbitMqClient implements QueueClient {
     this.channelModel.connection.on("close", () => {
       this._connected = false
       this.channel = null
+      this.fetchedMessages.clear()
     })
 
     await this.setupChannel()
   }
 
   async disconnect(): Promise<void> {
-    this.fetchedMessages.clear()
+    this.returnFetchedMessages()
     try { await this.channel?.close() } catch { }
     try { await this.channelModel?.close() } catch { }
     this.channel = null
@@ -110,8 +112,7 @@ export class RabbitMqClient implements QueueClient {
 
   async listMessages(queue: string, limit = 100): Promise<QueueMessage[]> {
     if (!this.channel) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
-
-    this.fetchedMessages.clear()
+    this.returnFetchedMessages()
 
     const messages: QueueMessage[] = []
     for (let i = 0; i < limit; i++) {
@@ -152,6 +153,23 @@ export class RabbitMqClient implements QueueClient {
 
     this.channel.ack(msg)
     this.fetchedMessages.delete(messageId)
+  }
+
+  private returnFetchedMessages(): void {
+    if (!this.channel || this.fetchedMessages.size === 0) {
+      this.fetchedMessages.clear()
+      return
+    }
+
+    for (const msg of this.fetchedMessages.values()) {
+      try {
+        this.channel.nack(msg, false, true)
+      } catch (err) {
+        console.error("[RabbitMqClient] Failed to requeue message on clear:", err)
+      }
+    }
+
+    this.fetchedMessages.clear()
   }
 
   private toQueueMessage(queue: string, msg: GetMessage): QueueMessage {

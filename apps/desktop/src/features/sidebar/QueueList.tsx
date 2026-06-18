@@ -14,7 +14,7 @@ function QueueList() {
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const loadQueues = useCallback(async () => {
-    if (!currentConnection) {
+    if (!currentConnection || !currentConnection.connected) {
       setQueues([])
       return
     }
