@@ -11,6 +11,7 @@ export interface QueueApi {
   listMessages(connectionId: string, queue: string, limit?: number): Promise<QueueMessage[]>
   publish(connectionId: string, queue: string, payload: unknown, headers?: Record<string, string>): Promise<void>
   deleteMessage(connectionId: string, queue: string, messageId: string): Promise<void>
+  purgeQueue(connectionId: string, queue: string): Promise<void>
   clientConnect(connectionId: string): Promise<{ id: string; name: string; provider: string; connected: boolean; config: Record<string, unknown> }>
   clientDisconnect(connectionId: string): Promise<{ id: string; name: string; provider: string; connected: boolean; config: Record<string, unknown> }>
   updateConnection(connectionId: string, name: string, provider: Provider, config: Record<string, unknown>): Promise<{ id: string; name: string; provider: string; connected: boolean; config: Record<string, unknown> }>
@@ -40,6 +41,9 @@ const api: QueueApi = {
 
   deleteMessage: (connectionId, queue, messageId) =>
     ipcRenderer.invoke(IPC_CHANNELS.DELETE_MESSAGE, connectionId, queue, messageId),
+
+  purgeQueue: (connectionId, queue) =>
+    ipcRenderer.invoke(IPC_CHANNELS.PURGE_QUEUE, connectionId, queue),
 
   clientConnect: (connectionId) =>
     ipcRenderer.invoke(IPC_CHANNELS.CLIENT_CONNECT, connectionId),

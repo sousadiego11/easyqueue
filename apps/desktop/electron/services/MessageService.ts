@@ -17,4 +17,9 @@ export class MessageService {
     const client = this.connectionService.getClient(connectionId)
     await client.deleteMessage(queue, messageId)
   }
+
+  async purgeQueue(connectionId: string, queue: string): Promise<void> {
+    const client = this.connectionService.getClient(connectionId)
+    await client.purgeQueue(queue)
+  }
 }

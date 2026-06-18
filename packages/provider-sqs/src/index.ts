@@ -5,6 +5,7 @@ import {
   ReceiveMessageCommand,
   SendMessageCommand,
   DeleteMessageCommand,
+  PurgeQueueCommand,
   type Message,
 } from "@aws-sdk/client-sqs"
 import type { PublishRequest, QueueClient, QueueMessage } from "@easyqueue/core"
@@ -152,6 +153,13 @@ export class AWSSQSClient implements QueueClient {
     }))
 
     this.fetchedMessages.delete(messageId)
+  }
+
+  async purgeQueue(queue: string): Promise<void> {
+    if (!this.client) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
+    const queueUrl = await this.resolveQueueUrl(queue)
+    await this.client.send(new PurgeQueueCommand({ QueueUrl: queueUrl }))
+    this.fetchedMessages.clear()
   }
 
   private async resolveQueueUrl(queue: string): Promise<string> {

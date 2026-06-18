@@ -155,6 +155,12 @@ export class RabbitMqClient implements QueueClient {
     this.fetchedMessages.delete(messageId)
   }
 
+  async purgeQueue(queue: string): Promise<void> {
+    if (!this.channel) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
+    await this.channel.purgeQueue(queue)
+    this.fetchedMessages.clear()
+  }
+
   private returnFetchedMessages(): void {
     if (!this.channel || this.fetchedMessages.size === 0) {
       this.fetchedMessages.clear()

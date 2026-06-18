@@ -16,6 +16,7 @@ export interface QueueApi {
   listMessages(connectionId: string, queue: string, limit?: number): Promise<QueueMessage[]>
   publish(connectionId: string, queue: string, payload: unknown, headers?: Record<string, string>): Promise<void>
   deleteMessage(connectionId: string, queue: string, messageId: string): Promise<void>
+  purgeQueue(connectionId: string, queue: string): Promise<void>
   clientConnect(connectionId: string): Promise<ConnectionInfo>
   clientDisconnect(connectionId: string): Promise<ConnectionInfo>
   updateConnection(connectionId: string, name: string, provider: Provider, config: Record<string, unknown>): Promise<ConnectionInfo>

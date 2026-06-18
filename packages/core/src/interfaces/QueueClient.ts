@@ -14,4 +14,5 @@ export interface QueueClient {
   listMessages(queue: string, limit?: number): Promise<QueueMessage[]>
   publish(request: PublishRequest): Promise<void>
   deleteMessage(queue: string, messageId: string): Promise<void>
+  purgeQueue(queue: string): Promise<void>
 }
