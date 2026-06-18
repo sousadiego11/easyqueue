@@ -15,6 +15,7 @@ function Publisher() {
   const theme = useAppStore((s) => s.theme)
   const [raw, setRaw] = useState(DEFAULT_JSON)
   const [error, setError] = useState<string | null>(null)
+  const [isPublishing, setIsPublishing] = useState(false)
 
   function handleChange(content: Content) {
     if ("text" in content) {
@@ -25,6 +26,7 @@ function Publisher() {
 
   async function handleSend() {
     if (!currentConnection) return
+    setIsPublishing(true)
     try {
       const payload = JSON.parse(raw)
       await queueApi.publish(currentConnection.id, queue, payload)
@@ -34,6 +36,8 @@ function Publisher() {
       const message = err instanceof Error ? err.message : "Invalid JSON"
       setError(message)
       toast.error(message)
+    } finally {
+      setIsPublishing(false)
     }
   }
 
@@ -42,7 +46,7 @@ function Publisher() {
       <div className="flex items-center justify-between px-4 py-2 border-b bg-card flex-shrink-0">
         <span className="text-sm font-semibold">Publisher</span>
         <div className="flex items-center gap-2">
-          <Button size="sm" onClick={handleSend} disabled={!currentConnection?.connected}><Play size={14} /> Publish</Button>
+          <Button size="sm" onClick={handleSend} loading={isPublishing} disabled={!currentConnection?.connected}><Play size={14} /> Publish</Button>
         </div>
       </div>
 

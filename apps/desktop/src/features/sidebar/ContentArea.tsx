@@ -39,7 +39,7 @@ function ContentArea() {
           onChange={(e) => setLimit(Math.min(100, Math.max(1, Number(e.target.value))))}
           className="w-20 h-7 text-xs"
         />
-        <Button size="sm" onClick={handleConsume} disabled={isLoadingMessages || !currentConnection?.connected}>
+        <Button size="sm" onClick={handleConsume} loading={isLoadingMessages} disabled={!currentConnection?.connected}>
           <Download className="h-3.5 w-3.5 mr-1" />
           Consume
         </Button>

@@ -71,6 +71,7 @@ function NewConnectionModal() {
   const connections = useConnectionStore((s) => s.connections)
   const connect = useConnectionStore((s) => s.connect)
   const updateConnection = useConnectionStore((s) => s.updateConnection)
+  const isLoading = useConnectionStore((s) => s.isLoading)
   const setCurrentConnection = useAppStore((s) => s.setCurrentConnection)
 
   const isEditing = editingConnectionId !== null
@@ -239,7 +240,7 @@ function NewConnectionModal() {
             Cancel
           </Button>
           {step === "config" && (
-            <Button onClick={handleSubmit}>
+            <Button onClick={handleSubmit} loading={isLoading} disabled={isLoading}>
               {isEditing ? "Save" : "Connect"}
             </Button>
           )}

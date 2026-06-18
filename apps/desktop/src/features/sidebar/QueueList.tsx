@@ -1,7 +1,7 @@
 import { queueApi } from "@/api/queueApi"
 import { Button } from "@/components/ui/button"
 import { useAppStore } from "@/stores/useAppStore"
-import { RefreshCw } from "lucide-react"
+import { FolderOpen, RefreshCw } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -11,6 +11,7 @@ function QueueList() {
   const setActiveQueue = useAppStore((s) => s.setActiveQueue)
   const currentConnection = useAppStore((s) => s.currentConnection)
   const [queues, setQueues] = useState<string[]>([])
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const loadQueues = useCallback(async () => {
     if (!currentConnection) {
@@ -18,12 +19,15 @@ function QueueList() {
       return
     }
 
+    setIsRefreshing(true)
     try {
       const result = await queueApi.listQueues(currentConnection.id)
       setQueues(result)
       toast.success("Queues refreshed")
     } catch {
       toast.error("Failed to refresh queues")
+    } finally {
+      setIsRefreshing(false)
     }
   }, [currentConnection])
 
@@ -37,21 +41,28 @@ function QueueList() {
         <span className="text-[0.75rem] font-semibold uppercase tracking-wider text-sidebar-foreground/60">
           QUEUES
         </span>
-        <Button variant="ghost" size="icon" aria-label="Refresh queues" className="text-sidebar-foreground/60" onClick={loadQueues}>
+        <Button variant="ghost" size="icon" aria-label="Refresh queues" className="text-sidebar-foreground/60" onClick={loadQueues} loading={isRefreshing} disabled={!currentConnection}>
           <RefreshCw className="h-3 w-3" />
         </Button>
       </div>
       <div className="flex flex-col gap-0.5">
-        {queues.map((q) => (
-          <button
-            key={q}
-            onClick={() => setActiveQueue(q)}
-            data-active={q === activeQueue ? "true" : undefined}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-md text-sm cursor-pointer text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-left data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
-          >
-            <span className="truncate flex-1">{q}</span>
-          </button>
-        ))}
+        {queues.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 py-8 text-sidebar-foreground/40">
+            <FolderOpen className="h-8 w-8" />
+            <span className="text-xs">No queues</span>
+          </div>
+        ) : (
+          queues.map((q) => (
+            <button
+              key={q}
+              onClick={() => setActiveQueue(q)}
+              data-active={q === activeQueue ? "true" : undefined}
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-md text-sm cursor-pointer text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-left data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
+            >
+              <span className="truncate flex-1">{q}</span>
+            </button>
+          ))
+        )}
       </div>
     </div>
   )

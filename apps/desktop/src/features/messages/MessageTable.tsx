@@ -1,4 +1,5 @@
 import { useMessageStore } from "@/stores/useMessageStore"
+import { Inbox } from "lucide-react"
 
 const headers = [
   { key: "time", label: "Time", width: "180px" },
@@ -30,27 +31,35 @@ function MessageTable() {
           ))}
         </div>
         <div className="overflow-y-auto flex-1 min-h-0">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              onClick={() => setSelectedMessage(msg)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault()
-                  setSelectedMessage(msg)
-                }
-              }}
-              role="button"
-              tabIndex={0}
-              className="grid gap-0 hover:bg-muted/50 cursor-pointer transition-colors border-b border-border last:border-b-0"
-              style={{ gridTemplateColumns: headers.map((h) => h.width).join(" ") }}
-            >
-              <div className="px-4 py-2 text-xs">{msg.timestamp.toLocaleString()}</div>
-              <div className="px-4 py-2 text-xs truncate">{msg.id}</div>
-              <div className="px-4 py-2 text-xs">{JSON.stringify(msg.payload).length} B</div>
-              <div className="px-4 py-2 text-xs truncate">{trimPayload(msg.payload)}</div>
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-3 h-full text-muted-foreground">
+              <Inbox className="h-12 w-12" />
+              <span className="text-sm">No messages</span>
+              <span className="text-xs">Consume a queue to see messages</span>
             </div>
-          ))}
+          ) : (
+            messages.map((msg) => (
+              <div
+                key={msg.id}
+                onClick={() => setSelectedMessage(msg)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    setSelectedMessage(msg)
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                className="grid gap-0 hover:bg-muted/50 cursor-pointer transition-colors border-b border-border last:border-b-0"
+                style={{ gridTemplateColumns: headers.map((h) => h.width).join(" ") }}
+              >
+                <div className="px-4 py-2 text-xs">{msg.timestamp.toLocaleString()}</div>
+                <div className="px-4 py-2 text-xs truncate">{msg.id}</div>
+                <div className="px-4 py-2 text-xs">{JSON.stringify(msg.payload).length} B</div>
+                <div className="px-4 py-2 text-xs truncate">{trimPayload(msg.payload)}</div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
