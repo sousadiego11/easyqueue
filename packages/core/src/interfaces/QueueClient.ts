@@ -1,5 +1,6 @@
 import type { Provider } from "./Connection"
 import type { PublishRequest } from "./PublishRequest"
+import type { QueueInfo } from "./QueueInfo"
 import type { QueueMessage } from "./QueueMessage"
 
 export interface QueueClient {
@@ -10,7 +11,7 @@ export interface QueueClient {
   config: Record<string, unknown>
   connect(): Promise<void>
   disconnect(): Promise<void>
-  listQueues(): Promise<string[]>
+  listQueues(): Promise<QueueInfo[]>
   listMessages(queue: string, limit?: number): Promise<QueueMessage[]>
   publish(request: PublishRequest): Promise<void>
   deleteMessage(queue: string, messageId: string): Promise<void>

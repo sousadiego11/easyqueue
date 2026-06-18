@@ -45,10 +45,12 @@ function MessageActions() {
     <div>
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-4">Actions</span>
       <div className="flex gap-2">
-        <Button variant="default" size="sm" onClick={handleReplay} loading={isReplaying} disabled={!currentConnection} className="px-4">
+        <Button variant="default" size="sm" onClick={handleReplay}
+          loading={isReplaying} disabled={!currentConnection?.connected} className="px-4">
           <Play className="h-3.5 w-3.5" /> Replay
         </Button>
-        <Button variant="outline" size="sm" onClick={handleDelete} loading={isDeleting} disabled={!currentConnection} className="border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500/20 px-4">
+                <Button variant="outline" size="sm" onClick={handleDelete}
+          loading={isDeleting} disabled={!currentConnection?.connected} className="border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500/20 px-4">
           <Trash2 className="h-3.5 w-3.5" /> Delete
         </Button>
       </div>

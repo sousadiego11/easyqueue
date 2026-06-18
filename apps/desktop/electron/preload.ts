@@ -1,13 +1,13 @@
 import { contextBridge, ipcRenderer } from "electron"
 import { IPC_CHANNELS } from "@easyqueue/shared"
-import type { QueueMessage } from "@easyqueue/core"
+import type { QueueInfo, QueueMessage } from "@easyqueue/core"
 import type { Provider } from "@easyqueue/core"
 
 export interface QueueApi {
   connect(name: string, provider: Provider, config: Record<string, unknown>): Promise<{ id: string; name: string; provider: string; connected: boolean; config: Record<string, unknown> }>
   disconnect(connectionId: string): Promise<void>
   listConnections(): Promise<Array<{ id: string; name: string; provider: string; connected: boolean; config: Record<string, unknown> }>>
-  listQueues(connectionId: string): Promise<string[]>
+  listQueues(connectionId: string): Promise<QueueInfo[]>
   listMessages(connectionId: string, queue: string, limit?: number): Promise<QueueMessage[]>
   publish(connectionId: string, queue: string, payload: unknown, headers?: Record<string, string>): Promise<void>
   deleteMessage(connectionId: string, queue: string, messageId: string): Promise<void>

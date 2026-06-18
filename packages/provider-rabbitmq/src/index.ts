@@ -1,5 +1,5 @@
 import amqplib, { type Channel, type ChannelModel, type GetMessage } from "amqplib"
-import type { PublishRequest, QueueClient, QueueMessage } from "@easyqueue/core"
+import type { PublishRequest, QueueClient, QueueInfo, QueueMessage } from "@easyqueue/core"
 import { QueueError, QueueErrorCode } from "@easyqueue/core"
 import type { Provider, RabbitMQConfig } from "@easyqueue/core"
 
@@ -94,7 +94,7 @@ export class RabbitMqClient implements QueueClient {
     }
   }
 
-  async listQueues(): Promise<string[]> {
+  async listQueues(): Promise<QueueInfo[]> {
     if (!this._connected) throw new QueueError(QueueErrorCode.CONNECTION_FAILED, `Failed to list queues`)
 
     const { base, auth } = this.getManagementAuth()
@@ -107,7 +107,7 @@ export class RabbitMqClient implements QueueClient {
     }
 
     const data = await res.json() as Array<{ name: string }>
-    return data.map((q) => q.name)
+    return data.map((q) => ({ name: q.name }))
   }
 
   async listMessages(queue: string, limit = 100): Promise<QueueMessage[]> {

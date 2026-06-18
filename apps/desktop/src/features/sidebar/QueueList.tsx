@@ -1,3 +1,4 @@
+import type { QueueInfo } from "@easyqueue/core"
 import { queueApi } from "@/api/queueApi"
 import { Button } from "@/components/ui/button"
 import { useAppStore } from "@/stores/useAppStore"
@@ -10,7 +11,7 @@ function QueueList() {
   const activeQueue = useAppStore((s) => s.activeQueue)
   const setActiveQueue = useAppStore((s) => s.setActiveQueue)
   const currentConnection = useAppStore((s) => s.currentConnection)
-  const [queues, setQueues] = useState<string[]>([])
+  const [queues, setQueues] = useState<QueueInfo[]>([])
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const loadQueues = useCallback(async () => {
@@ -55,12 +56,22 @@ function QueueList() {
         ) : (
           queues.map((q) => (
             <button
-              key={q}
-              onClick={() => setActiveQueue(q)}
-              data-active={q === activeQueue ? "true" : undefined}
+              key={q.name}
+              onClick={() => setActiveQueue(q.name)}
+              data-active={q.name === activeQueue ? "true" : undefined}
               className="flex items-center gap-2 px-3.5 py-1.5 rounded-md text-sm cursor-pointer text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-left data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
             >
-              <span className="truncate flex-1">{q}</span>
+              <span className="truncate flex-1">{q.name}</span>
+              {q.visibilityTimeoutSeconds !== undefined && (
+                <span className="text-[0.65rem] text-muted-foreground/50 tabular-nums">
+                  {q.visibilityTimeoutSeconds}s
+                </span>
+              )}
+              {q.delaySeconds !== undefined && q.delaySeconds > 0 && (
+                <span className="text-[0.65rem] text-muted-foreground/50 tabular-nums">
+                  delay {q.delaySeconds}s
+                </span>
+              )}
             </button>
           ))
         )}

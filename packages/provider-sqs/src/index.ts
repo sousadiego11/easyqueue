@@ -2,13 +2,14 @@ import {
   SQSClient,
   ListQueuesCommand,
   GetQueueUrlCommand,
+  GetQueueAttributesCommand,
   ReceiveMessageCommand,
   SendMessageCommand,
   DeleteMessageCommand,
   PurgeQueueCommand,
   type Message,
 } from "@aws-sdk/client-sqs"
-import type { PublishRequest, QueueClient, QueueMessage } from "@easyqueue/core"
+import type { PublishRequest, QueueClient, QueueInfo, QueueMessage } from "@easyqueue/core"
 import { QueueError, QueueErrorCode } from "@easyqueue/core"
 import type { Provider, SQSConfig } from "@easyqueue/core"
 
@@ -72,21 +73,40 @@ export class AWSSQSClient implements QueueClient {
     this._connected = false
   }
 
-  async listQueues(): Promise<string[]> {
+  async listQueues(): Promise<QueueInfo[]> {
     if (!this.client) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
 
     const response = await this.client.send(new ListQueuesCommand({}))
     const urls = response.QueueUrls ?? []
     this.queueUrls.clear()
 
-    const names: string[] = []
-    for (const url of urls) {
-      const name = this.extractQueueName(url)
-      this.queueUrls.set(name, url)
-      names.push(name)
-    }
+    const results: QueueInfo[] = await Promise.all(
+      urls.map(async (url) => {
+        const name = this.extractQueueName(url)
+        this.queueUrls.set(name, url)
 
-    return names
+        try {
+          const attrResponse = await this.client!.send(new GetQueueAttributesCommand({
+            QueueUrl: url,
+            AttributeNames: ["VisibilityTimeout", "DelaySeconds"],
+          }))
+
+          return {
+            name,
+            visibilityTimeoutSeconds: attrResponse.Attributes?.VisibilityTimeout
+              ? Number(attrResponse.Attributes.VisibilityTimeout)
+              : undefined,
+            delaySeconds: attrResponse.Attributes?.DelaySeconds
+              ? Number(attrResponse.Attributes.DelaySeconds)
+              : undefined,
+          }
+        } catch {
+          return { name }
+        }
+      })
+    )
+
+    return results
   }
 
   async listMessages(queue: string, limit = 100): Promise<QueueMessage[]> {

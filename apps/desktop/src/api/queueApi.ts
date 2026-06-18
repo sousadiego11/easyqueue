@@ -1,4 +1,4 @@
-import type { QueueMessage, Provider } from "@easyqueue/core"
+import type { QueueInfo, QueueMessage, Provider } from "@easyqueue/core"
 
 export interface ConnectionInfo {
   id: string
@@ -12,7 +12,7 @@ export interface QueueApi {
   connect(name: string, provider: Provider, config: Record<string, unknown>): Promise<ConnectionInfo>
   disconnect(connectionId: string): Promise<void>
   listConnections(): Promise<ConnectionInfo[]>
-  listQueues(connectionId: string): Promise<string[]>
+  listQueues(connectionId: string): Promise<QueueInfo[]>
   listMessages(connectionId: string, queue: string, limit?: number): Promise<QueueMessage[]>
   publish(connectionId: string, queue: string, payload: unknown, headers?: Record<string, string>): Promise<void>
   deleteMessage(connectionId: string, queue: string, messageId: string): Promise<void>
