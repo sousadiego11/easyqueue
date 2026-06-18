@@ -47,6 +47,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install Playwright chromium
+        run: npx playwright install chromium
+
+      - name: Generate app icon from SVG
+        run: pnpm generate-icons
+        working-directory: apps/desktop
+
       - name: Build Vite
         run: pnpm build
         working-directory: apps/desktop

@@ -7,7 +7,7 @@ files:
   - dist/**/*
   - resources/**/*
   - package.json
-icon: resources/icon.svg
+icon: resources/icon.png
 win:
   target: nsis
 nsis:
