@@ -4,12 +4,6 @@ export interface SQSConfig extends Record<string, unknown> {
   secretAccessKey: string
 }
 
-export interface KafkaConfig extends Record<string, unknown> {
-  brokers: string[]
-  clientId: string
-  groupId: string
-}
-
 export interface RabbitMQConfig extends Record<string, unknown> {
   url: string
   managementUrl: string
@@ -19,7 +13,6 @@ export interface RabbitMQConfig extends Record<string, unknown> {
 
 export interface ProviderConfigs {
   sqs: SQSConfig
-  kafka: KafkaConfig
   rabbitmq: RabbitMQConfig
 }
 

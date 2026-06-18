@@ -7,7 +7,7 @@ Leia tudo antes de escrever qualquer linha de código.
 
 ## O que é este projeto
 
-**EasyQueue** é uma interface web de monitoramento e debugging de filas de mensagens (SQS, RabbitMQ, Kafka).
+**EasyQueue** é uma interface desktop de monitoramento e debugging de filas de mensagens (SQS, RabbitMQ).
 Público-alvo: engenheiros backend e DevOps.
 O produto precisa transmitir confiabilidade, densidade de informação e controle.
 
@@ -17,12 +17,15 @@ O produto precisa transmitir confiabilidade, densidade de informação e control
 
 | Camada | Tecnologia |
 |---|---|
-| Framework | React 18 + TypeScript (Vite) |
+| Framework | React 19 + TypeScript (Vite) |
 | Estilo | **Tailwind CSS** + **shadcnUI** |
 | Ícones | **Lucide React** — e nada mais |
-| Roteamento | React Router v6 |
-| Estado global | Zustand |
-| Data mock | Arquivos `.ts` locais em `src/mocks/` |
+| Estado global | Zustand v5 |
+| Toasts | Sonner |
+| JSON editor | vanilla-jsoneditor (readOnly) |
+| Painéis redimensionáveis | react-resizable-panels |
+| Testes unitários | Vitest |
+| Testes e2e | Playwright |
 
 **Ícones:** use sempre o componente do `lucide-react`. Se o ícone não existir no Lucide, abra uma issue antes de criar SVG manual. A única exceção aceita é o logotipo do produto na `Sidebar.tsx`.
 
@@ -34,53 +37,92 @@ A estrutura abaixo é obrigatória — não é sugestão. Todo arquivo novo segu
 
 ```
 src/
+├── __tests__/
+│   └── stores.test.ts
+├── api/
+│   └── queueApi.ts              ← bridge para o backend Electron / mock
 ├── styles/
-│   └── index.css             ← @tailwind base/components/utilities + CSS custom properties
+│   └── index.css                ← @tailwind base/components/utilities + CSS custom properties
 ├── components/
-│   └── ui/                   ← shadcnUI components (gerados via `npx shadcn add`)
+│   └── ui/                      ← shadcnUI components (gerados via `npx shadcn add`)
+│       ├── SplitPane.tsx        ← wrapper react-resizable-panels
+│       ├── JsonEditor.tsx       ← wrapper vanilla-jsoneditor
 │       ├── badge.tsx
 │       ├── button.tsx
-│       ├── tabs.tsx
-│       ├── input.tsx
 │       ├── dialog.tsx
+│       ├── input.tsx
 │       ├── select.tsx
-│       ├── table.tsx
 │       ├── separator.tsx
-│       └── ... (outros conforme necessário)
+│       ├── sonner.tsx
+│       ├── table.tsx
+│       └── tabs.tsx
 ├── features/
+│   ├── detail/
+│   │   ├── DetailPanel.tsx
+│   │   ├── MessageActions.tsx   ← Replay / Delete
+│   │   └── MessageMeta.tsx
+│   ├── header/
+│   │   └── Header.tsx           ← status bar (fila ativa, conexão, theme toggle)
+│   ├── messages/
+│   │   └── MessageTable.tsx     ← tabela com filtros, sorting
+│   ├── publisher/
+│   │   └── Publisher.tsx
 │   ├── sidebar/
 │   │   ├── Sidebar.tsx
 │   │   ├── ConnectionList.tsx
+│   │   ├── ContentArea.tsx      ← toolbar (Consume/Purge) + MessageTable
+│   │   ├── NewConnectionModal.tsx
 │   │   └── QueueList.tsx
-│   ├── messages/
-│   │   ├── MessageTable.tsx
-│   │   ├── MessageFilters.tsx
-│   │   └── Pagination.tsx
-│   ├── detail/
-│   │   ├── DetailPanel.tsx
-│   │   ├── MessageMeta.tsx
-│   │   └── MessageActions.tsx
-│   └── publisher/
-│       └── Publisher.tsx
-├── mocks/
-│   ├── connections.ts
-│   ├── queues.ts
-│   └── messages.ts
+│   └── titlebar/
+│       └── TitleBar.tsx         ← janela Electron (minimize/maximize/close)
+├── icons/
+│   ├── LOGO.svg
+│   ├── RABBIT.svg
+│   └── SQS.svg
+├── lib/
+│   └── utils.ts                 ← função cn()
 ├── stores/
 │   ├── useAppStore.ts
 │   ├── useConnectionStore.ts
 │   └── useMessageStore.ts
-├── types.ts                  ← todos os tipos globais do projeto
 ├── App.tsx
-└── main.tsx
+├── main.tsx
+├── types.ts
+└── vite-env.d.ts
 ```
 
 ### Regras de organização
 
 - `components/ui/` → componentes shadcnUI (genéricos, sem lógica de negócio)
-- `features/` → componentes com lógica de negócio, acesso ao store, consumo de mocks
-- Nenhum arquivo na raiz de `src/` além de `App.tsx`, `main.tsx` e `types.ts`
+- `features/` → componentes com lógica de negócio, acesso ao store
+- Nenhum arquivo na raiz de `src/` além de `App.tsx`, `main.tsx`, `types.ts` e `vite-env.d.ts`
 - Nenhum componente com nome genérico sem contexto (`Card.tsx`, `Item.tsx`, `Component.tsx`)
+
+---
+
+## API / Bridge
+
+O app se comunica com o backend via `queueApi` (definido em `src/api/queueApi.ts`).
+Em ambiente Electron, o preload script expõe `window.queueApi`. Em testes e2e, o mock `e2e/fixtures/apiMock.js` define `window.queueApi`.
+
+```ts
+interface QueueApi {
+  connect(name, provider, config): Promise<ConnectionInfo>
+  disconnect(connectionId): Promise<void>
+  listConnections(): Promise<ConnectionInfo[]>
+  listQueues(connectionId): Promise<QueueInfo[]>
+  listMessages(connectionId, queue, limit?): Promise<QueueMessage[]>
+  publish(connectionId, queue, payload, headers?): Promise<void>
+  deleteMessage(connectionId, queue, messageId): Promise<void>
+  purgeQueue(connectionId, queue): Promise<void>
+  clientConnect(connectionId): Promise<ConnectionInfo>
+  clientDisconnect(connectionId): Promise<ConnectionInfo>
+  updateConnection(connectionId, name, provider, config): Promise<ConnectionInfo>
+  minimize(): void
+  maximize(): void
+  close(): void
+}
+```
 
 ---
 
@@ -91,7 +133,6 @@ src/
 Usamos a estratégia `class` do Tailwind. O toggle de tema adiciona/remove a classe `dark` no `<html>`:
 
 ```ts
-// stores/useAppStore.ts
 toggleTheme: () => {
   const next = get().theme === 'light' ? 'dark' : 'light'
   document.documentElement.classList.toggle('dark', next === 'dark')
@@ -100,67 +141,12 @@ toggleTheme: () => {
 }
 ```
 
-### Cores
-
-Todas as cores são definidas como CSS custom properties no `styles/index.css`, usando a convenção de `hsl()` do shadcnUI. O seletor `:root` contém o tema light, `.dark` contém o tema dark.
-
-```css
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-  }
-}
-```
-
-Tailwind aplica essas variáveis via `tailwind.config.ts` mapeando para as cores utilitárias (`bg-background`, `text-foreground`, `border`, etc.).
-
 ### Tailwind — como usar
 
 - Use **utility classes** diretamente no JSX: `className="flex items-center gap-2 p-3"`
 - Prefira as cores do tema: `bg-background`, `text-foreground`, `text-muted-foreground`, `border`
-- Evite valores hardcoded: `text-red-500` só em casos excepcionais
-- Para variantes use Tailwind: `dark:bg-gray-800`, `hover:bg-accent`
+- Cores de status (verde/vermelho) excepcionalmente em hardcoded: `bg-[#22c55e]`, `bg-[#f87171]`
+- Para variantes use Tailwind: `hover:bg-accent`, `dark:bg-gray-800`
 
 ### shadcnUI — como usar
 
@@ -172,10 +158,11 @@ Tailwind aplica essas variáveis via `tailwind.config.ts` mapeando para as cores
 ### O padrão esperado num componente de feature
 
 ```tsx
-function MessageFilters() {
+function MessageTable() {
+  const messages = useMessageStore((s) => s.messages)
   return (
     <div className="flex items-center gap-2 px-3 py-2">
-      <select className="h-7 px-2 rounded-md border bg-background">...</select>
+      ...
     </div>
   )
 }
@@ -202,91 +189,87 @@ interface AppStore {
   isNewConnectionModalOpen: boolean
   openNewConnectionModal: () => void
   closeNewConnectionModal: () => void
-  currentConnectionId: string | null
-  setCurrentConnectionId: (id: string | null) => void
+  editingConnectionId: string | null
+  openEditConnectionModal: (id: string) => void
+  closeEditConnectionModal: () => void
+  currentConnection: ConnectionInfo | null
+  setCurrentConnection: (conn: ConnectionInfo | null) => void
 }
 ```
 
-**Nunca** use `useState` para: tema, fila ativa, mensagem selecionada, estado do modal, tab ativa, conexão atual.
+Interface do ConnectionStore:
+
+```ts
+interface ConnectionStore {
+  connections: ConnectionInfo[]
+  isLoading: boolean
+  error: string | null
+  connect: (name, provider, config) => Promise<ConnectionInfo>
+  disconnect: (id) => Promise<void>
+  loadConnections: () => Promise<ConnectionInfo[]>
+  updateConnection: (id, name, provider, config) => Promise<ConnectionInfo>
+  toggleConnection: (id) => Promise<ConnectionInfo>
+}
+```
+
+Interface do MessageStore:
+
+```ts
+interface MessageStore {
+  messages: QueueMessage[]
+  selectedMessage: QueueMessage | null
+  isLoadingMessages: boolean
+  error: string | null
+  loadMessages: (connectionId, queue, limit?) => Promise<void>
+  deleteMessage: (connectionId, queue, messageId) => Promise<void>
+  purgeQueue: (connectionId, queue) => Promise<void>
+  setSelectedMessage: (message) => void
+  clearMessages: () => void
+}
+```
+
+**Nunca** use `useState` para: tema, fila ativa, mensagem selecionada, estado do modal, conexão atual.
 
 ---
 
 ## Tipos globais (types.ts)
 
-Todos os tipos compartilhados ficam em `src/types.ts`. Nenhum tipo de domínio é definido dentro de componente.
-
 ```ts
-export type Theme = 'light' | 'dark'
-
-export type ConnectionType = 'SQS' | 'RabbitMQ' | 'Kafka'
-
-export interface Connection {
-  id: string
-  name: string
-  type: ConnectionType
-  status: 'online' | 'offline'
-}
-
-export interface Queue {
-  id: string
-  name: string
-  count: number
-}
-
-export type EventType =
-  | 'OrderCreated'
-  | 'OrderConfirmed'
-  | 'OrderShipped'
-  | 'OrderDelivered'
-  | 'PaymentApproved'
-  | 'PaymentCaptured'
-  | 'InventoryReserved'
-  | 'NotificationQueued'
-  | 'EmailSent'
-
-export interface Message {
-  id: string
-  queue: string
-  payload: unknown
-  timestamp: Date
-  headers?: Record<string, string>
-  raw?: unknown
-}
+export type Theme = "light" | "dark"
 ```
+
+Os tipos de domínio (`ConnectionInfo`, `QueueInfo`, `QueueMessage`, `Provider`) vêm dos pacotes `@easyqueue/core` ou de `src/api/queueApi.ts`.
 
 ---
 
 ## Layout
 
+O layout é composto por painéis aninhados via `react-resizable-panels` (componente `SplitPane`):
+
 ```
-┌──────────────┬─────────────────────────────┬────────────────────┐
-│  Sidebar     │  Painel Central             │  Painel Detalhe    │
-│  240px fixo  │  flex: 1                    │  420px fixo        │
-│              │                             │  (oculto se null)  │
-└──────────────┴─────────────────────────────┴────────────────────┘
+┌──────────────┬──────────────────────────────────────────────┐
+│  TitleBar    │  (minimize / maximize / close)               │
+├──────────────┼───────────────────────────────┬──────────────┤
+│  Sidebar     │  Header                       │              │
+│  240px       │  (queue + status + theme)     │  Detail      │
+│  ─────────── │  ContentArea                  │  Panel       │
+│  Connections │  (Consume/Purge + MessageTbl) │  40%         │
+│  Queues      │  ───────────────────────────  │  (oculto     │
+│              │  Publisher                    │   se null)   │
+└──────────────┴───────────────────────────────┴──────────────┘
 ```
 
-- Container raiz: `display: flex`, `height: 100vh`, `overflow: hidden`
-- Cada painel: `overflow-y: auto` internamente
-- Painel de detalhe: só renderiza quando `selectedMessage !== null`
-
----
-
-## Badges de event type
-
-| Event type | Variante |
-|---|---|
-| OrderCreated, OrderConfirmed, OrderShipped, OrderDelivered | `blue` |
-| PaymentApproved, PaymentCaptured | `green` |
-| InventoryReserved, NotificationQueued | `yellow` |
-| EmailSent | `purple` |
+- TitleBar: `h-9`, `app-drag-region` para janela Electron
+- Sidebar: `240px` via SplitPane, `overflow-y-auto`
+- DetailPanel: só renderiza quando `selectedMessage !== null`
+- Publisher: `200px` altura via SplitPane vertical
 
 ---
 
 ## Acessibilidade mínima (não negociável)
 
 - Todo `<img>` tem `alt`
-- Todo `IconButton` e `CopyButton` tem `aria-label`
+- Botões de ação têm `aria-label`
 - Toggle de tema tem `aria-label` dinâmico: `"Switch to dark mode"` / `"Switch to light mode"`
 - Linhas clicáveis da tabela: `role="button"`, `tabIndex={0}`, responde a `Enter` e `Space`
 - Painel de detalhe: renderizado em `<aside>`
@@ -305,10 +288,44 @@ export interface Message {
 
 ---
 
+## Testes
+
+### Unitários (Vitest)
+
+```bash
+pnpm test                    # apps/desktop
+```
+
+Arquivos em `src/__tests__/`. Usam `vi.mock` para isolar stores.
+
+### E2E (Playwright)
+
+```bash
+pnpm test:e2e                # apps/desktop (headless)
+pnpm test:e2e:headed         # com janela visível
+```
+
+Os testes usam `e2e/fixtures/apiMock.js` injetado via `page.addInitScript`.
+O mock substitui `window.queueApi` e armazena dados em memória (`window.__connections`, `window.__messages`, etc.).
+
+```text
+e2e/
+├── fixtures/
+│   └── apiMock.js
+├── specs/
+│   ├── connections.spec.ts     ← criar/selecionar/toggle conexão
+│   ├── detail-panel.spec.ts    ← abrir/fechar/replay/delete
+│   ├── messages.spec.ts        ← consumir/purge/filtros
+│   └── publisher.spec.ts       ← publicar/desabilitado
+├── playwright.config.ts
+```
+
+---
+
 ## O que nunca fazer
 
 - ❌ `style={{ }}` inline em qualquer lugar
-- ❌ Cores, fontes ou espaçamentos hardcoded que deveriam usar tokens do tema
+- ❌ Cores, fontes ou espaçamentos hardcoded que deveriam usar tokens do tema (exceção: `bg-[#22c55e]` e `bg-[#f87171]`)
 - ❌ `any` explícito no TypeScript
 - ❌ `// @ts-ignore` ou `// @ts-expect-error`
 - ❌ Lógica de negócio dentro de `components/ui/`
@@ -327,12 +344,14 @@ Execute mentalmente este checklist:
 - [ ] Nenhum `style={{}}` inline em nenhum arquivo
 - [ ] Nenhum SVG inline (exceto o logo da Sidebar)
 - [ ] Nenhum ícone que não seja do `lucide-react`
-- [ ] Nenhum tipo de domínio fora de `types.ts`
+- [ ] Nenhum tipo de domínio fora de `types.ts` ou `api/queueApi.ts`
 - [ ] Nenhum estado global em `useState` local
 - [ ] Componentes em `ui/` não acessam o store
 - [ ] Estrutura de pastas bate com o mapa acima
 - [ ] Nomenclatura consistente com as regras acima
 - [ ] Acessibilidade mínima presente
+- [ ] Testes e2e passando (`pnpm test:e2e`)
+- [ ] Testes unitários passando (`pnpm test`)
 
 ---
 

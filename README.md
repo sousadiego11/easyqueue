@@ -34,7 +34,7 @@
 
 ## About
 
-Every team that works with message queues eventually faces the same frustration: switching between AWS Console, RabbitMQ Management UI, Kafka CLI tools, and half a dozen browser tabs just to read a single message.
+Every team that works with message queues eventually faces the same frustration: switching between AWS Console, RabbitMQ Management UI, CLI tools, and half a dozen browser tabs just to read a single message.
 
 EasyQueue solves this by providing a single, native desktop interface that works across providers. Connect once, and you can browse queues, inspect messages, publish payloads, and debug your async workflows — all from one place.
 
@@ -44,7 +44,7 @@ It is built for developers who value speed, clarity, and local tooling. No cloud
 
 | Feature | Description |
 |---|---|
-| **Multi-provider connections** | Connect to SQS, RabbitMQ, and Kafka from a single interface |
+| **Multi-provider connections** | Connect to SQS, RabbitMQ, and more from a single interface |
 | **Queue browsing** | List all queues from a connected broker with message counts |
 | **Message inspection** | Navigate through messages with full JSON payload viewing |
 | **Publish messages** | Compose and send messages directly to any queue |
@@ -136,7 +136,7 @@ pnpm clean
 - [x] Dark / Light theme
 - [x] JSON payload viewer
 - [x] Message search and filter
-- [ ] Kafka provider
+
 - [ ] Message re-drive (re-publish to a different queue)
 - [ ] Saved connections (persist connection config)
 
@@ -155,7 +155,7 @@ pnpm clean
 ```
 core           ←  Common contracts (QueueClient, QueueMessage, Connection)
   ↑
-providers      ←  Provider implementations (SQS, RabbitMQ, Kafka)
+providers      ←  Provider implementations (SQS, RabbitMQ)
   ↑
 desktop        ←  Electron application (React, Tailwind, shadcnUI)
 ```

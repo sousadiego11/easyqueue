@@ -13,9 +13,8 @@ import { useConnectionStore } from "@/stores/useConnectionStore"
 import { toast } from "sonner"
 import sqsIcon from "@/icons/SQS.svg"
 import rabbitIcon from "@/icons/RABBIT.svg"
-import kafkaIcon from "@/icons/KAFKA.svg"
 
-type ProviderType = "sqs" | "rabbitmq" | "kafka"
+type ProviderType = "sqs" | "rabbitmq"
 
 type ProviderField = {
   key: string
@@ -35,33 +34,25 @@ const providerFields: Record<string, ProviderField[]> = {
     { key: "url", label: "AMQP URL", placeholder: "amqp://guest:guest@localhost:5672", required: true },
     { key: "managementUrl", label: "Management URL", placeholder: "http://guest:guest@localhost:15672", required: true },
     { key: "managementUser", label: "Management User", placeholder: "guest", required: false },
-    { key: "managementPassword", label: "Management Password", placeholder: "••••••••", required: false, type: "password" },
-  ],
-  kafka: [
-    { key: "brokers", label: "Brokers", placeholder: "localhost:9092,localhost:9093", required: true },
-    { key: "clientId", label: "Client ID", placeholder: "my-client", required: true },
-    { key: "groupId", label: "Group ID", placeholder: "my-group", required: true },
+    { key: "managementPassword", label: "Management Password", placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", required: false, type: "password" },
   ],
 }
 
 const providerNames: Record<string, string> = {
   sqs: "AWS SQS",
   rabbitmq: "RabbitMQ",
-  kafka: "Kafka",
 }
 
 const providerDescriptions: Record<string, string> = {
   sqs: "Amazon Simple Queue Service",
   rabbitmq: "RabbitMQ message broker",
-  kafka: "Apache Kafka (coming soon)",
 }
 
-const availableProviders: ProviderType[] = ["sqs", "rabbitmq", "kafka"]
+const availableProviders: ProviderType[] = ["sqs", "rabbitmq"]
 
 const providerIconSrc: Record<string, string> = {
   sqs: sqsIcon,
   rabbitmq: rabbitIcon,
-  kafka: kafkaIcon,
 }
 
 function NewConnectionModal() {
@@ -129,10 +120,6 @@ function NewConnectionModal() {
 
   async function handleSubmit() {
     if (!selectedProvider) return
-    if (selectedProvider === "kafka") {
-      setError("Kafka provider is not yet implemented")
-      return
-    }
 
     const fields = providerFields[selectedProvider]
     for (const field of fields) {

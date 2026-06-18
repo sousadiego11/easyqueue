@@ -1,4 +1,4 @@
-import type { Provider, QueueClient, QueueMessage, PublishRequest } from "@easyqueue/core"
+import type { Provider, QueueClient, QueueInfo, QueueMessage, PublishRequest } from "@easyqueue/core"
 
 export class MockProvider implements QueueClient {
   id: string
@@ -28,8 +28,8 @@ export class MockProvider implements QueueClient {
     this.messages.clear()
   }
 
-  async listQueues(): Promise<string[]> {
-    return [...this.queues]
+  async listQueues(): Promise<QueueInfo[]> {
+    return [...this.queues].map((name) => ({ name }))
   }
 
   async listMessages(queue: string, limit = 100): Promise<QueueMessage[]> {
