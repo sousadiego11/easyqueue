@@ -1,0 +1,8 @@
+{
+  "release-type": "node",
+  "packages": {
+    ".": {
+      "extra-files": ["apps/desktop/package.json"]
+    }
+  }
+}
