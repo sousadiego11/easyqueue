@@ -12,9 +12,10 @@ interface ConnectionStore {
   disconnect: (id: string) => Promise<void>
   loadConnections: () => Promise<ConnectionInfo[]>
   updateConnection: (id: string, name: string, provider: Provider, config: Record<string, unknown>) => Promise<ConnectionInfo>
+  toggleConnection: (id: string) => Promise<ConnectionInfo>
 }
 
-export const useConnectionStore = create<ConnectionStore>((set) => ({
+export const useConnectionStore = create<ConnectionStore>((set, get) => ({
   connections: [],
   isLoading: false,
   error: null,
@@ -68,6 +69,29 @@ export const useConnectionStore = create<ConnectionStore>((set) => ({
       return connection
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to update connection"
+      set({ error: message, isLoading: false })
+      throw err
+    }
+  },
+
+  toggleConnection: async (id) => {
+    set({ isLoading: true, error: null })
+    try {
+      const { connections } = get()
+      const connection = connections.find((c) => c.id === id)
+      if (!connection) throw new Error("Connection not found")
+
+      const updated = connection.connected
+        ? await queueApi.clientDisconnect(id)
+        : await queueApi.clientConnect(id)
+
+      set((s) => ({
+        connections: s.connections.map((c) => (c.id === id ? updated : c)),
+        isLoading: false,
+      }))
+      return updated
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to toggle connection"
       set({ error: message, isLoading: false })
       throw err
     }

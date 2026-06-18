@@ -91,6 +91,20 @@ export class ConnectionService {
     this.saveToDisk()
   }
 
+  async clientConnect(connectionId: string): Promise<ConnectionInfo> {
+    const client = this.clients.get(connectionId)
+    if (!client) throw new Error(`Connection ${connectionId} not found`)
+    await client.connect()
+    return this.toConnectionInfo(client)
+  }
+
+  async clientDisconnect(connectionId: string): Promise<ConnectionInfo> {
+    const client = this.clients.get(connectionId)
+    if (!client) throw new Error(`Connection ${connectionId} not found`)
+    await client.disconnect()
+    return this.toConnectionInfo(client)
+  }
+
   getClient(connectionId: string): QueueClient {
     const client = this.clients.get(connectionId)
     if (!client) throw new Error(`Connection ${connectionId} not found`)

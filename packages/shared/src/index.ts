@@ -8,6 +8,8 @@ export const IPC_CHANNELS = {
   PUBLISH: "queue:publish",
   DELETE_MESSAGE: "queue:delete-message",
   CONNECTION_STATE_CHANGED: "queue:connection-state-changed",
+  CLIENT_CONNECT: "queue:client-connect",
+  CLIENT_DISCONNECT: "queue:client-disconnect",
   LIST_CONNECTIONS: "queue:list-connections",
   UPDATE_CONNECTION: "queue:update-connection",
   WINDOW_MINIMIZE: "window:minimize",

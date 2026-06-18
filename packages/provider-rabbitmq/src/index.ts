@@ -93,6 +93,8 @@ export class RabbitMqClient implements QueueClient {
   }
 
   async listQueues(): Promise<string[]> {
+    if (!this._connected) throw new QueueError(QueueErrorCode.CONNECTION_FAILED, `Failed to list queues`)
+
     const { base, auth } = this.getManagementAuth()
     const res = await fetch(`${base}/api/queues`, {
       headers: { Authorization: `Basic ${auth}` },

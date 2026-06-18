@@ -26,6 +26,7 @@ function QueueList() {
       toast.success("Queues refreshed")
     } catch {
       toast.error("Failed to refresh queues")
+      setQueues([])
     } finally {
       setIsRefreshing(false)
     }
