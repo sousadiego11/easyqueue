@@ -17,6 +17,7 @@ linux:
   target:
     - AppImage
     - deb
+  artifactName: ${productName}-${version}-${arch}.${ext}
 deb:
   packageName: easyqueue
 mac:
