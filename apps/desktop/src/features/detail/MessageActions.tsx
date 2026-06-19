@@ -1,12 +1,5 @@
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog"
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useAppStore } from "@/stores/useAppStore"
 import { useMessageStore } from "@/stores/useMessageStore"
 import { queueApi } from "@/api/queueApi"
@@ -26,11 +19,13 @@ function MessageActions() {
 
   if (!selectedMessage) return null
 
+  const msg = selectedMessage
+
   async function handleReplay() {
     if (!currentConnection) return
     setIsReplaying(true)
     try {
-      await queueApi.publish(currentConnection.id, selectedMessage!.queue, selectedMessage!.payload, selectedMessage!.headers)
+      await queueApi.publish(currentConnection.id, msg.queue, msg.payload, msg.headers)
       toast.success("Message replayed")
     } catch {
       toast.error("Failed to replay message")
@@ -43,7 +38,7 @@ function MessageActions() {
     if (!currentConnection) return
     setIsReleasing(true)
     try {
-      await releaseMessage(currentConnection.id, selectedMessage!.queue, selectedMessage!.id)
+      await releaseMessage(currentConnection.id, msg.queue, msg.id)
       toast.success("Message released")
     } catch {
       toast.error("Failed to release message")
@@ -56,7 +51,7 @@ function MessageActions() {
     if (!currentConnection) return
     setIsDeleting(true)
     try {
-      await deleteMessage(currentConnection.id, selectedMessage!.queue, selectedMessage!.id)
+      await deleteMessage(currentConnection.id, msg.queue, msg.id)
       toast.success("Message deleted")
       setShowDeleteDialog(false)
     } catch {
@@ -78,30 +73,26 @@ function MessageActions() {
           loading={isReleasing} disabled={!currentConnection?.connected} className="px-4">
           <Undo2 className="h-3.5 w-3.5" /> Release
         </Button>
-        <Button variant="outline" size="sm" onClick={() => setShowDeleteDialog(true)}
-          disabled={!currentConnection?.connected} className="border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500/20 px-4">
+        <Button variant="destructiveOutline" size="sm" onClick={() => setShowDeleteDialog(true)}
+          disabled={!currentConnection?.connected} className="px-4">
           <Trash2 className="h-3.5 w-3.5" /> Delete
         </Button>
       </div>
 
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Delete Message</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this message? It will be permanently removed from <strong>{selectedMessage.queue}</strong>.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} disabled={isDeleting}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} loading={isDeleting} disabled={isDeleting}>
-              <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title="Delete Message"
+        description={
+          <>
+            Are you sure you want to delete this message? It will be permanently removed from <strong>{msg.queue}</strong>.
+          </>
+        }
+        actionLabel="Delete"
+        onConfirm={handleDelete}
+        loading={isDeleting}
+        icon={Trash2}
+      />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import type { QueueInfo } from "@easyqueue/core"
 import { queueApi } from "@/api/queueApi"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/EmptyState"
 import { useAppStore } from "@/stores/useAppStore"
 import { FolderOpen, RefreshCw } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
@@ -49,10 +50,7 @@ function QueueList() {
       </div>
       <div className="flex flex-col gap-0.5">
         {queues.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 py-8 text-sidebar-foreground/40">
-            <FolderOpen className="h-8 w-8" />
-            <span className="text-xs">No queues</span>
-          </div>
+          <EmptyState icon={FolderOpen} message="No queues" />
         ) : (
           queues.map((q) => (
             <button

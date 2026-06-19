@@ -227,7 +227,7 @@ function NewConnectionModal() {
             Cancel
           </Button>
           {step === "config" && (
-            <Button onClick={handleSubmit} loading={isLoading} disabled={isLoading}>
+            <Button onClick={handleSubmit} loading={isLoading}>
               {isEditing ? "Save" : "Connect"}
             </Button>
           )}

@@ -97,7 +97,7 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
         appState.setCurrentConnection(updated)
       }
 
-      toast.info(connection.connected ? "Disconnected Succesfully" : "Connected Succesfully")
+      toast.info(connection.connected ? "Disconnected Successfully" : "Connected Successfully")
       return updated
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to toggle connection"

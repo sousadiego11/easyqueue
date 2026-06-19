@@ -35,6 +35,13 @@ function App() {
     }
   }, [currentConnection, setActiveQueue])
 
+  const mainContent = (
+    <SplitPane direction="vertical" defaultSize={200} storageKey="content-publisher-height" leftId="content-area" rightId="publisher">
+      <ContentArea />
+      <Publisher />
+    </SplitPane>
+  )
+
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background">
       <TitleBar />
@@ -44,29 +51,12 @@ function App() {
           <div className="flex flex-col h-full overflow-hidden">
             <Header />
             {selectedMessage ? (
-              <SplitPane
-                defaultSize={60}
-                storageKey="content-detail-width"
-                leftId="content"
-                rightId="detail"
-              >
-                <SplitPane direction="vertical" defaultSize={200} storageKey="content-publisher-height" leftId="content-area" rightId="publisher">
-                  <ContentArea />
-                  <Publisher />
-                </SplitPane>
+              <SplitPane defaultSize={60} storageKey="content-detail-width" leftId="content" rightId="detail">
+                {mainContent}
                 <DetailPanel />
               </SplitPane>
             ) : (
-              <SplitPane
-                direction="vertical"
-                defaultSize={200}
-                storageKey="content-publisher-height"
-                leftId="content-area"
-                rightId="publisher"
-              >
-                <ContentArea />
-                <Publisher />
-              </SplitPane>
+              mainContent
             )}
           </div>
         </SplitPane>

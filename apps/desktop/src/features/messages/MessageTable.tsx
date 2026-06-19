@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react"
 import { useMessageStore } from "@/stores/useMessageStore"
 import { Search, ArrowUpDown, ArrowUp, ArrowDown, Inbox, Loader2 } from "lucide-react"
+import { trimPayload, getMessageSize, formatSize } from "@/lib/messageUtils"
 
 type SortField = "time" | "id" | "size"
 type SortDir = "asc" | "desc"
@@ -12,21 +13,6 @@ const headers = [
   { key: "payload", label: "Payload", width: "1.5fr", sortable: false, align: "left" as const },
   { key: "size", label: "Size", width: "70px", sortable: true, align: "right" as const },
 ] as const
-
-function trimPayload(payload: unknown): string {
-  const text = JSON.stringify(payload)
-  return text.length > 80 ? text.slice(0, 80) + "\u2026" : text
-}
-
-function getMessageSize(msg: { payload: unknown }): number {
-  return JSON.stringify(msg.payload).length
-}
-
-function formatSize(bytes: number): string {
-  if (bytes < 1000) return `${bytes} B`
-  if (bytes < 1000000) return `${(bytes / 1000).toFixed(1)} KB`
-  return `${(bytes / 1000000).toFixed(1)} MB`
-}
 
 function SortIcon({ field, active, direction }: { field: SortField; active: SortField; direction: SortDir }) {
   if (field !== active) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-30" />
