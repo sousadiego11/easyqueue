@@ -32,3 +32,18 @@ test("publish button is disabled when not connected", async ({ page }) => {
   const publishBtn = page.locator('button:has-text("Publish")').last()
   await expect(publishBtn).toBeDisabled()
 })
+
+test("shows error toast when payload is invalid JSON", async ({ page }) => {
+  await createConnection(page, "PubTest")
+  await page.getByText("PubTest").first().click()
+
+  await page.getByText("orders").first().click()
+  await page.waitForTimeout(300)
+
+  const editable = page.locator('[contenteditable="true"]').first()
+  await editable.click()
+  await editable.fill("not valid json")
+
+  await page.locator('button:has-text("Publish")').last().click()
+  await expect(page.getByText("Unexpected token")).toBeVisible()
+})
