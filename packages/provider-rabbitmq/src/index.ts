@@ -155,9 +155,42 @@ export class RabbitMqClient implements QueueClient {
     this.fetchedMessages.delete(messageId)
   }
 
-  async purgeQueue(queue: string): Promise<void> {
+  async releaseMessage(queue: string, messageId: string): Promise<void> {
     if (!this.channel) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
-    await this.channel.purgeQueue(queue)
+
+    const msg = this.fetchedMessages.get(messageId)
+    if (!msg) return
+
+    this.channel.nack(msg, false, true)
+    this.fetchedMessages.delete(messageId)
+  }
+
+  async releaseQueue(queue: string): Promise<void> {
+    if (!this.channel) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
+
+    for (const [messageId, msg] of this.fetchedMessages) {
+      try {
+        this.channel.nack(msg, false, true)
+        this.fetchedMessages.delete(messageId)
+      } catch (err) {
+        console.error("[RabbitMqClient] Failed to release message:", err)
+      }
+    }
+  }
+
+  async purgeQueue(queue: string): Promise<void> {
+    if (!this.channel) {
+      throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
+    }
+
+    for (const [messageId, msg] of this.fetchedMessages) {
+      try {
+        this.channel.ack(msg)
+      } catch (err) {
+        console.error("[RabbitMqClient] Failed to ack message during purge:", err)
+      }
+    }
+
     this.fetchedMessages.clear()
   }
 

@@ -10,6 +10,8 @@ interface MessageStore {
 
   loadMessages: (connectionId: string, queue: string, limit?: number) => Promise<void>
   deleteMessage: (connectionId: string, queue: string, messageId: string) => Promise<void>
+  releaseMessage: (connectionId: string, queue: string, messageId: string) => Promise<void>
+  releaseQueue: (connectionId: string, queue: string) => Promise<void>
   purgeQueue: (connectionId: string, queue: string) => Promise<void>
   setSelectedMessage: (message: QueueMessage | null) => void
   clearMessages: () => void
@@ -39,6 +41,20 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
       messages: s.messages.filter((m) => m.id !== messageId),
       selectedMessage: selected?.id === messageId ? null : selected,
     }))
+  },
+
+  releaseMessage: async (connectionId, queue, messageId) => {
+    await queueApi.releaseMessage(connectionId, queue, messageId)
+    const selected = get().selectedMessage
+    set((s) => ({
+      messages: s.messages.filter((m) => m.id !== messageId),
+      selectedMessage: selected?.id === messageId ? null : selected,
+    }))
+  },
+
+  releaseQueue: async (connectionId, queue) => {
+    await queueApi.releaseQueue(connectionId, queue)
+    set({ messages: [], selectedMessage: null })
   },
 
   purgeQueue: async (connectionId, queue) => {

@@ -11,6 +11,14 @@ export function registerMessageHandlers(messageService: MessageService): void {
     await messageService.deleteMessage(connectionId, queue, messageId)
   })
 
+  ipcMain.handle(IPC_CHANNELS.RELEASE_MESSAGE, async (_event, connectionId: string, queue: string, messageId: string) => {
+    await messageService.releaseMessage(connectionId, queue, messageId)
+  })
+
+  ipcMain.handle(IPC_CHANNELS.RELEASE_QUEUE, async (_event, connectionId: string, queue: string) => {
+    await messageService.releaseQueue(connectionId, queue)
+  })
+
   ipcMain.handle(IPC_CHANNELS.PURGE_QUEUE, async (_event, connectionId: string, queue: string) => {
     await messageService.purgeQueue(connectionId, queue)
   })

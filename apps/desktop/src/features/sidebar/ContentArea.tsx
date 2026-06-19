@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Trash2 } from "lucide-react"
+import { Download, Trash2, Undo2 } from "lucide-react"
 import { MessageTable } from "@/features/messages/MessageTable"
 import { useAppStore } from "@/stores/useAppStore"
 import { useMessageStore } from "@/stores/useMessageStore"
@@ -9,9 +9,11 @@ import { toast } from "sonner"
 
 function ContentArea() {
   const [limit, setLimit] = useState(100)
+  const [isReleasing, setIsReleasing] = useState(false)
   const activeQueue = useAppStore((s) => s.activeQueue)
   const currentConnection = useAppStore((s) => s.currentConnection)
   const loadMessages = useMessageStore((s) => s.loadMessages)
+  const releaseQueue = useMessageStore((s) => s.releaseQueue)
   const purgeQueue = useMessageStore((s) => s.purgeQueue)
   const isLoadingMessages = useMessageStore((s) => s.isLoadingMessages)
 
@@ -22,6 +24,19 @@ function ContentArea() {
       toast.success("Messages loaded")
     } catch {
       toast.error("Failed to load messages")
+    }
+  }
+
+  async function handleRelease() {
+    if (!currentConnection || !activeQueue) return
+    setIsReleasing(true)
+    try {
+      await releaseQueue(currentConnection.id, activeQueue)
+      toast.success("Messages released")
+    } catch {
+      toast.error("Failed to release messages")
+    } finally {
+      setIsReleasing(false)
     }
   }
 
@@ -53,6 +68,9 @@ function ContentArea() {
         <Button size="sm" onClick={handleConsume} loading={isLoadingMessages} disabled={!currentConnection?.connected}>
           <Download className="h-3.5 w-3.5 mr-1" />
           Consume
+        </Button>
+        <Button variant="secondary" size="sm" onClick={handleRelease} loading={isReleasing} disabled={!currentConnection?.connected} className="px-4">
+          <Undo2 className="h-3.5 w-3.5" /> Release
         </Button>
         <Button variant="outline" size="sm" onClick={handlePurge} loading={isLoadingMessages} disabled={!currentConnection?.connected} className="border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500/20 px-4">
           <Trash2 className="h-3.5 w-3.5" /> Purge
