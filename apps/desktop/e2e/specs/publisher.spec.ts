@@ -1,21 +1,5 @@
 import { test, expect } from "@playwright/test"
-
-async function createConnection(page, name: string) {
-  await page.getByLabel("New connection").click()
-  await page.waitForSelector('text=New Connection')
-
-  const dialog = page.getByRole("dialog")
-  await dialog.getByText("AWS SQS").click()
-  await page.waitForSelector('text=Configure AWS SQS')
-
-  await dialog.getByPlaceholder("My Connection").fill(name)
-  await dialog.getByPlaceholder("us-east-1").fill("us-east-1")
-  await dialog.getByPlaceholder("AKIA...").fill("test-key")
-  await dialog.getByPlaceholder("••••••••").fill("test-secret")
-
-  await dialog.getByRole("button", { name: "Connect" }).click()
-  await page.waitForTimeout(500)
-}
+import { createConnection } from "../fixtures/helpers"
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript({ path: "e2e/fixtures/apiMock.js" })

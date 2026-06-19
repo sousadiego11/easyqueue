@@ -1,44 +1,5 @@
 import { test, expect } from "@playwright/test"
-
-async function setupWithMessages(page, name: string) {
-  await page.getByLabel("New connection").click()
-  await page.waitForSelector('text=New Connection')
-
-  const dialog = page.getByRole("dialog")
-  await dialog.getByText("AWS SQS").click()
-  await page.waitForSelector('text=Configure AWS SQS')
-
-  await dialog.getByPlaceholder("My Connection").fill(name)
-  await dialog.getByPlaceholder("us-east-1").fill("us-east-1")
-  await dialog.getByPlaceholder("AKIA...").fill("test-key")
-  await dialog.getByPlaceholder("\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022").fill("test-secret")
-
-  await dialog.getByRole("button", { name: "Connect" }).click()
-  await page.waitForTimeout(500)
-
-  await page.getByText(name).first().click()
-  await page.getByText("orders").first().click()
-  await page.waitForTimeout(300)
-
-  await page.evaluate(() => {
-    const conn = window.__connections[0]
-    window.__msgCounter = 1
-    window.__messages[conn.id] = {
-      orders: [
-        {
-          id: "msg-1",
-          queue: "orders",
-          payload: { key: "value" },
-          timestamp: new Date("2024-01-15T10:30:00Z"),
-          headers: { "content-type": "application/json" },
-        },
-      ],
-    }
-  })
-
-  await page.locator('button:has-text("Consume")').first().click()
-  await expect(page.getByText("msg-1")).toBeVisible({ timeout: 5000 })
-}
+import { setupWithMessages } from "../fixtures/helpers"
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript({ path: "e2e/fixtures/apiMock.js" })
