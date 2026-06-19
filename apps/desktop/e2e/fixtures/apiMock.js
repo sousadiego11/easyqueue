@@ -82,6 +82,17 @@ window.queueApi = {
     window.__messages[connectionId][queue] = msgs.filter((m) => m.id !== messageId)
   },
 
+  async releaseMessage(connectionId, queue, messageId) {
+    const msgs = window.__messages[connectionId]?.[queue] ?? []
+    window.__messages[connectionId][queue] = msgs.filter((m) => m.id !== messageId)
+  },
+
+  async releaseQueue(connectionId, queue) {
+    if (window.__messages[connectionId]) {
+      window.__messages[connectionId][queue] = []
+    }
+  },
+
   async purgeQueue(connectionId, queue) {
     if (window.__messages[connectionId]) {
       window.__messages[connectionId][queue] = []

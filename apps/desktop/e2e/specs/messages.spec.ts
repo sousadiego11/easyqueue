@@ -1,21 +1,5 @@
 import { test, expect } from "@playwright/test"
-
-async function createConnection(page, name: string) {
-  await page.getByLabel("New connection").click()
-  await page.waitForSelector('text=New Connection')
-
-  const dialog = page.getByRole("dialog")
-  await dialog.getByText("AWS SQS").click()
-  await page.waitForSelector('text=Configure AWS SQS')
-
-  await dialog.getByPlaceholder("My Connection").fill(name)
-  await dialog.getByPlaceholder("us-east-1").fill("us-east-1")
-  await dialog.getByPlaceholder("AKIA...").fill("test-key")
-  await dialog.getByPlaceholder("••••••••").fill("test-secret")
-
-  await dialog.getByRole("button", { name: "Connect" }).click()
-  await page.waitForTimeout(500)
-}
+import { createConnection } from "../fixtures/helpers"
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript({ path: "e2e/fixtures/apiMock.js" })
@@ -62,4 +46,39 @@ test("purge button exists and is clickable", async ({ page }) => {
   const purgeBtn = page.getByRole("button", { name: "Purge" })
   await expect(purgeBtn).toBeVisible()
   await expect(purgeBtn).toBeEnabled()
+})
+
+test("release queue button exists and releases messages", async ({ page }) => {
+  await createConnection(page, "MsgTest")
+  await page.getByText("MsgTest").first().click()
+  await page.getByText("orders").first().click()
+  await page.waitForTimeout(300)
+
+  const releaseBtn = page.getByRole("button", { name: "Release" })
+  await expect(releaseBtn).toBeVisible()
+  await expect(releaseBtn).toBeEnabled()
+
+  await page.locator('button:has-text("Consume")').first().click()
+  await expect(page.getByText("No messages")).toBeVisible({ timeout: 5000 })
+
+  await page.evaluate(() => {
+    const conn = (window as any).__connections[0]
+    ;(window as any).__messages[conn.id] = {
+      orders: [
+        {
+          id: "msg-1",
+          queue: "orders",
+          payload: { key: "value" },
+          timestamp: new Date(),
+        },
+      ],
+    }
+  })
+
+  await page.locator('button:has-text("Consume")').first().click()
+  await expect(page.getByText("msg-1")).toBeVisible({ timeout: 5000 })
+
+  await releaseBtn.click()
+  await expect(page.getByText("Messages released")).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText("No messages")).toBeVisible({ timeout: 5000 })
 })

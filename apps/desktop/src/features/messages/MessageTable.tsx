@@ -1,34 +1,44 @@
 import { useState, useMemo } from "react"
 import { useMessageStore } from "@/stores/useMessageStore"
-import { Inbox, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, Inbox, Loader2 } from "lucide-react"
+import { trimPayload, getMessageSize, formatSize } from "@/lib/messageUtils"
 
 type SortField = "time" | "id" | "size"
 type SortDir = "asc" | "desc"
 
 const headers = [
-  { key: "time", label: "Time", width: "180px", sortable: true },
-  { key: "id", label: "Message ID", width: "1fr", sortable: true },
-  { key: "size", label: "Size", width: "70px", sortable: true },
-  { key: "payload", label: "Payload", width: "1fr", sortable: false },
+  { key: "time", label: "Time", width: "170px", sortable: true, align: "left" as const },
+  { key: "id", label: "Message ID", width: "1.2fr", sortable: true, align: "left" as const },
+  { key: "attributes", label: "", width: "36px", sortable: false, align: "center" as const },
+  { key: "payload", label: "Payload", width: "1.5fr", sortable: false, align: "left" as const },
+  { key: "size", label: "Size", width: "70px", sortable: true, align: "right" as const },
 ] as const
-
-function trimPayload(payload: unknown): string {
-  const text = JSON.stringify(payload)
-  return text.length > 60 ? text.slice(0, 60) + "\u2026" : text
-}
-
-function getMessageSize(msg: { payload: unknown }): number {
-  return JSON.stringify(msg.payload).length
-}
 
 function SortIcon({ field, active, direction }: { field: SortField; active: SortField; direction: SortDir }) {
   if (field !== active) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-30" />
   return direction === "asc" ? <ArrowUp className="h-3 w-3 ml-1" /> : <ArrowDown className="h-3 w-3 ml-1" />
 }
 
+function FilterInput({ placeholder, value, onChange }: { placeholder: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="relative">
+      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground/40 pointer-events-none" />
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full bg-transparent pl-7 pr-2 py-1.5 text-xs outline-none placeholder:text-muted-foreground/40"
+      />
+    </div>
+  )
+}
+
 function MessageTable() {
   const messages = useMessageStore((s) => s.messages)
+  const selectedMessage = useMessageStore((s) => s.selectedMessage)
   const setSelectedMessage = useMessageStore((s) => s.setSelectedMessage)
+  const isLoading = useMessageStore((s) => s.isLoadingMessages)
 
   const [sortField, setSortField] = useState<SortField>("time")
   const [sortDir, setSortDir] = useState<SortDir>("desc")
@@ -78,50 +88,31 @@ function MessageTable() {
 
   return (
     <div className="flex-1 min-h-0 overflow-hidden p-8">
-      <div className="rounded-lg border border-border flex flex-col min-h-0 h-full overflow-hidden">
+      <div className="rounded-lg border border-border flex flex-col min-h-0 h-full overflow-hidden bg-card">
         <div
           className="grid gap-0 border-b border-border bg-muted/30"
           style={{ gridTemplateColumns: headers.map((h) => h.width).join(" ") }}
         >
-          <div className="px-4 py-1.5">
-            <input
-              type="text"
-              placeholder="Filter time..."
-              value={timeFilter}
-              onChange={(e) => setTimeFilter(e.target.value)}
-              className="w-full bg-transparent text-xs outline-none placeholder:text-muted-foreground/40"
-            />
-          </div>
-          <div className="px-4 py-1.5">
-            <input
-              type="text"
-              placeholder="Filter ID..."
-              value={idFilter}
-              onChange={(e) => setIdFilter(e.target.value)}
-              className="w-full bg-transparent text-xs outline-none placeholder:text-muted-foreground/40"
-            />
-          </div>
-          <div className="px-4 py-1.5" />
-          <div className="px-4 py-1.5">
-            <input
-              type="text"
-              placeholder="Filter payload..."
-              value={payloadFilter}
-              onChange={(e) => setPayloadFilter(e.target.value)}
-              className="w-full bg-transparent text-xs outline-none placeholder:text-muted-foreground/40"
-            />
-          </div>
+          {headers.map((h) => (
+            <div key={h.key} className="px-2 py-1">
+              {h.key === "time" && <FilterInput placeholder="Filter time..." value={timeFilter} onChange={setTimeFilter} />}
+              {h.key === "id" && <FilterInput placeholder="Filter ID..." value={idFilter} onChange={setIdFilter} />}
+              {h.key === "attributes" && null}
+              {h.key === "size" && null}
+              {h.key === "payload" && <FilterInput placeholder="Filter payload..." value={payloadFilter} onChange={setPayloadFilter} />}
+            </div>
+          ))}
         </div>
 
         <div
-          className="grid gap-0 border-b border-border"
+          className="grid gap-0 border-b border-border bg-muted/20 text-muted-foreground text-xs uppercase tracking-wider"
           style={{ gridTemplateColumns: headers.map((h) => h.width).join(" ") }}
         >
           {headers.map((h) => (
             <div
               key={h.key}
               onClick={h.sortable ? () => toggleSort(h.key as SortField) : undefined}
-              className={`flex items-center px-4 py-2 font-medium text-muted-foreground text-xs uppercase tracking-wider ${h.sortable ? "cursor-pointer select-none hover:text-foreground" : ""}`}
+              className={`flex items-center px-4 py-2 font-semibold ${h.align === "right" ? "justify-end" : ""} ${h.sortable ? "cursor-pointer select-none hover:text-foreground" : ""}`}
             >
               {h.label}
               {h.sortable && <SortIcon field={h.key as SortField} active={sortField} direction={sortDir} />}
@@ -130,34 +121,48 @@ function MessageTable() {
         </div>
 
         <div className="overflow-y-auto flex-1 min-h-0">
-          {filtered.length === 0 ? (
+          {isLoading ? (
             <div className="flex flex-col items-center justify-center gap-3 h-full text-muted-foreground">
-              <Inbox className="h-12 w-12" />
-              <span className="text-sm">No messages</span>
-              <span className="text-xs">Consume a queue to see messages</span>
+              <Loader2 className="h-8 w-8 animate-spin" />
+              <span className="text-sm">Loading messages...</span>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-3 h-full text-muted-foreground">
+              <Inbox className="h-12 w-12 stroke-[1.5]" />
+              <span className="text-sm font-medium">No messages</span>
+              <span className="text-xs text-muted-foreground/60">Consume a queue to see messages</span>
             </div>
           ) : (
-            filtered.map((msg) => (
-              <div
-                key={msg.id}
-                onClick={() => setSelectedMessage(msg)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault()
-                    setSelectedMessage(msg)
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className="grid gap-0 hover:bg-muted/50 cursor-pointer transition-colors border-b border-border last:border-b-0"
-                style={{ gridTemplateColumns: headers.map((h) => h.width).join(" ") }}
-              >
-                <div className="px-4 py-2 text-xs">{msg.timestamp.toLocaleString()}</div>
-                <div className="px-4 py-2 text-xs truncate">{msg.id}</div>
-                <div className="px-4 py-2 text-xs">{getMessageSize(msg)} B</div>
-                <div className="px-4 py-2 text-xs truncate">{trimPayload(msg.payload)}</div>
-              </div>
-            ))
+            filtered.map((msg, idx) => {
+              const isSelected = selectedMessage?.id === msg.id
+              return (
+                <div
+                  key={msg.id}
+                  onClick={() => setSelectedMessage(msg)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      setSelectedMessage(msg)
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className={`grid gap-0 cursor-pointer transition-colors border-b border-border last:border-b-0 ${isSelected
+                    ? "bg-accent text-accent-foreground"
+                    : idx % 2 === 1
+                      ? "bg-muted/10 hover:bg-muted/40"
+                      : "hover:bg-muted/30"
+                    }`}
+                  style={{ gridTemplateColumns: headers.map((h) => h.width).join(" ") }}
+                >
+                  <div className="px-4 py-2.5 text-xs tabular-nums">{msg.timestamp.toLocaleString()}</div>
+                  <div className="px-4 py-2.5 text-xs font-mono truncate text-foreground/80">{msg.id}</div>
+                  <div className="px-2 py-2.5 flex items-center justify-center" />
+                  <div className="px-4 py-2.5 text-xs truncate text-muted-foreground">{trimPayload(msg.payload)}</div>
+                  <div className="px-4 py-2.5 text-xs tabular-nums text-right text-muted-foreground">{formatSize(getMessageSize(msg))}</div>
+                </div>
+              )
+            })
           )}
         </div>
       </div>

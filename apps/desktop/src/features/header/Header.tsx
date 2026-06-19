@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { StatusDot } from "@/components/ui/StatusDot"
 import { useAppStore } from "@/stores/useAppStore"
 import { Moon, Sun } from "lucide-react"
 
@@ -6,14 +7,11 @@ function Header() {
   const theme = useAppStore((s) => s.theme)
   const currentConnection = useAppStore((s) => s.currentConnection)
   const activeQueue = useAppStore((s) => s.activeQueue)
+  const toggleTheme = useAppStore((s) => s.toggleTheme)
 
   return (
     <div className="flex items-center gap-2 px-4 h-14 border-b bg-sidebar flex-shrink-0">
-      <span
-        className={`w-2 h-2 rounded-full flex-shrink-0 ${
-          currentConnection?.connected ? "bg-[#22c55e]" : "bg-[#f87171]"
-        }`}
-      />
+      <StatusDot active={!!currentConnection?.connected} />
       <span className="text-sm font-medium">{activeQueue || "No queue selected"}</span>
       <span className="text-sm text-muted-foreground">
         {currentConnection?.connected ? "Connected" : "Disconnected"}
@@ -23,7 +21,7 @@ function Header() {
         variant="ghost"
         size="icon"
         aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-        onClick={() => useAppStore.getState().toggleTheme()}
+        onClick={toggleTheme}
       >
         {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </Button>

@@ -1,21 +1,5 @@
 import { test, expect } from "@playwright/test"
-
-async function createConnection(page, name: string) {
-  await page.getByLabel("New connection").click()
-  await page.waitForSelector('text=New Connection')
-
-  const dialog = page.getByRole("dialog")
-  await dialog.getByText("AWS SQS").click()
-  await page.waitForSelector('text=Configure AWS SQS')
-
-  await dialog.getByPlaceholder("My Connection").fill(name)
-  await dialog.getByPlaceholder("us-east-1").fill("us-east-1")
-  await dialog.getByPlaceholder("AKIA...").fill("test-key")
-  await dialog.getByPlaceholder("••••••••").fill("test-secret")
-
-  await dialog.getByRole("button", { name: "Connect" }).click()
-  await page.waitForTimeout(500)
-}
+import { createConnection } from "../fixtures/helpers"
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript({ path: "e2e/fixtures/apiMock.js" })
@@ -53,4 +37,42 @@ test("toggles connection on/off with power button", async ({ page }) => {
 
   const connectBtn = row.getByLabel("Connect Tog")
   await expect(connectBtn).toBeVisible()
+})
+
+test("edits a connection name via edit button", async ({ page }) => {
+  await createConnection(page, "OldName")
+
+  await page.getByText("OldName").first().hover()
+  const editBtn = page.getByRole("button", { name: "Edit OldName" }).first()
+  await expect(editBtn).toBeVisible()
+  await editBtn.click()
+
+  await expect(page.getByRole("dialog")).toBeVisible()
+  await expect(page.getByText("Edit AWS SQS")).toBeVisible()
+
+  const nameInput = page.getByPlaceholder("My Connection")
+  await nameInput.clear()
+  await nameInput.fill("NewName")
+
+  await page.getByRole("button", { name: "Save" }).click()
+  await page.waitForTimeout(500)
+
+  await expect(page.getByText("NewName").first()).toBeVisible()
+})
+
+test("shows validation error when required fields are empty", async ({ page }) => {
+  await page.getByLabel("New connection").click()
+  await page.waitForSelector('text=New Connection')
+
+  await page.getByText("AWS SQS").click()
+  await page.waitForSelector('text=Configure AWS SQS')
+
+  const dialog = page.getByRole("dialog")
+  await dialog.getByPlaceholder("My Connection").fill("")
+  await dialog.getByPlaceholder("us-east-1").fill("")
+  await dialog.getByPlaceholder("AKIA...").fill("")
+  await dialog.getByPlaceholder("••••••••").fill("")
+
+  await dialog.getByRole("button", { name: "Connect" }).click()
+  await expect(page.getByText("Region is required")).toBeVisible()
 })

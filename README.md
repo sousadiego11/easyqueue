@@ -5,21 +5,11 @@
 <h1 align="center">EasyQueue</h1>
 
 <p align="center">
-  <strong>Postman for Message Brokers</strong>
+  <strong>The Postman for Message Brokers</strong>
 </p>
 
 <p align="center">
-  A unified desktop application to inspect, publish, and debug queue messages
-  across multiple message brokers — without ever leaving your machine.
-</p>
-
-<p align="center">
-  <a href="#features">Features</a> •
-  <a href="#screenshots">Screenshots</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#development">Development</a> •
-  <a href="#roadmap">Roadmap</a> •
-  <a href="#contributing">Contributing</a>
+  Inspect, publish, consume, and debug queue messages from a single desktop application.
 </p>
 
 <p align="center">
@@ -30,75 +20,160 @@
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs Welcome">
 </p>
 
+<p align="center">
+  <a href="#why-easyqueue">Why EasyQueue?</a> •
+  <a href="#screenshots">Screenshots</a> •
+  <a href="#features">Features</a> •
+  <a href="#supported-brokers">Supported Brokers</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#development">Development</a> •
+  <a href="#roadmap">Roadmap</a>
+</p>
+
 ---
 
-## About
+## Why EasyQueue?
 
-Every team that works with message queues eventually faces the same frustration: switching between AWS Console, RabbitMQ Management UI, CLI tools, and half a dozen browser tabs just to read a single message.
+Working with message queues often means jumping between multiple tools:
 
-EasyQueue solves this by providing a single, native desktop interface that works across providers. Connect once, and you can browse queues, inspect messages, publish payloads, and debug your async workflows — all from one place.
+- AWS Console
+- RabbitMQ Management UI
+- Internal dashboards
+- Logs
+- Terminal commands
 
-It is built for developers who value speed, clarity, and local tooling. No cloud dependency. No browser tabs. Just your queues, at your fingertips.
+Just to inspect a single message.
 
-## Features
+EasyQueue provides a unified desktop experience for browsing queues, inspecting payloads, publishing messages, and debugging asynchronous systems.
 
-| Feature | Description |
-|---|---|
-| **Multi-provider connections** | Connect to SQS, RabbitMQ, and more from a single interface |
-| **Queue browsing** | List all queues from a connected broker with message counts |
-| **Message inspection** | Navigate through messages with full JSON payload viewing |
-| **Publish messages** | Compose and send messages directly to any queue |
-| **Consume messages** | Poll and consume messages using native broker mechanisms |
-| **Delete messages** | Remove individual messages or purge entire queues |
-| **Re-drive messages** | Re-queue messages to a different target |
-| **Formatted JSON viewer** | Syntax-highlighted, collapsible tree view for message payloads |
-| **Search & filter** | Find messages by content, headers, or attributes |
-| **Dark / Light theme** | Toggle between themes with instant switch |
-| **Cross-platform** | Runs natively on Windows, macOS, and Linux |
+No browser tabs. No cloud dependency. Just your queues.
+
+---
+
+## Preview
+
+<p align="center">
+  <img src="./PREVIEW.gif" alt="EasyQueue Preview" />
+</p>
+
+---
 
 ## Screenshots
 
 <p align="center">
-  <img src="./DARK.png" width="45%" alt="Dark theme" />
-  <img src="./LIGHT.png" width="45%" alt="Light theme" />
+  <img src="./DARK.png" width="48%" alt="Dark Theme" />
+  <img src="./LIGHT.png" width="48%" alt="Light Theme" />
 </p>
+
+---
+
+## Highlights
+
+- ✅ RabbitMQ and AWS SQS in one place
+- ✅ Local-first desktop application
+- ✅ Connections stored locally
+- ✅ Encrypted credential storage
+- ✅ Publish and consume messages
+- ✅ JSON payload viewer
+- ✅ Dark and Light themes
+- ✅ Cross-platform support
+
+---
+
+## Privacy First
+
+EasyQueue stores all connections locally on your machine.
+
+Sensitive credentials are encrypted before being persisted, and no queue data is sent to external EasyQueue servers.
+
+Your infrastructure stays under your control.
+
+---
+
+## Supported Brokers
+
+| Broker | Status |
+|----------|----------|
+| RabbitMQ | ✅ Supported |
+| AWS SQS | ✅ Supported |
+| Azure Service Bus | 📋 Planned |
+| Redis Streams | 📋 Planned |
+| Google Pub/Sub | 📋 Planned |
+
+---
+
+## Features
+
+| Feature                    | Description                                                  |
+| -------------------------- | ------------------------------------------------------------ |
+| Multi-provider connections | Connect to different message brokers from a single interface |
+| Queue browsing             | Explore queues and message counts                            |
+| Message inspection         | View full payloads with formatted JSON                       |
+| Publish messages           | Send messages directly to queues                             |
+| Consume messages           | Consume messages directly from the queue                     |
+| Release messages           | Return consumed messages back to the queue                   |
+| Replay messages            | Re-publish individual messages                               |
+| Delete messages            | Remove individual messages                                   |
+| Purge queues               | Remove all pending messages from a queue                     |
+| Search and filter          | Find messages quickly                                        |
+| JSON viewer                | Formatted JSON payload viewer in text mode                   |
+| Dark / Light theme         | Switch themes instantly                                      |
+| Cross-platform             | Windows, macOS, and Linux                                    |
+
+
+---
 
 ## Installation
 
-### Pre-built binaries
+### Download
 
-Download the latest release for your platform from the [Releases](https://github.com/user/easyqueue/releases) page.
+Download the latest release:
 
-| Platform | Format |
-|---|---|
+https://github.com/sousadiego11/easyqueue/releases
+
+| Platform | Package |
+|-----------|----------|
 | Windows | `.exe` / `.msi` |
-| macOS (Intel) | `.dmg` |
-| macOS (Apple Silicon) | `.dmg` |
+| macOS Intel | `.dmg` |
+| macOS Apple Silicon | `.dmg` |
 | Linux | `.AppImage` / `.deb` |
 
-### From source
+---
 
-Requires Node.js >= 20 and pnpm.
+### Build From Source
+
+Requirements:
+
+- Node.js >= 20
+- pnpm
 
 ```bash
-git clone https://github.com/user/easyqueue.git
+git clone https://github.com/sousadiego11/easyqueue.git
+
 cd easyqueue
+
 pnpm install
+
 pnpm build
 ```
 
+> **Note:** `pnpm build` produces the app bundles in `dist/`. Installers (`.exe`, `.dmg`, `.AppImage`) are built in CI via `electron-builder`. To produce a local installer, run `npx electron-builder --win` (or `--mac`, `--linux`) after building.
+
+---
+
 ## Development
 
-EasyQueue uses a pnpm monorepo with the following structure:
+### Project Structure
 
-```
+```text
 apps/
-  desktop/          # Electron + React + Vite application
+  desktop/
+
 packages/
-  core/             # Common contracts and interfaces
-  provider-sqs/     # AWS SQS provider
-  provider-rabbitmq/ # RabbitMQ provider
-  shared/           # Shared utilities
+  core/
+  provider-sqs/
+  provider-rabbitmq/
+  shared/
 ```
 
 ### Commands
@@ -107,82 +182,131 @@ packages/
 # Install dependencies
 pnpm install
 
-# Start development server (renderer + Electron)
+# Start Electron + React
 pnpm dev
 
-# Type-check the entire project
+# Type-check
 pnpm typecheck
 
-# Run unit tests
+# Unit tests
 pnpm test
 
-# Run end-to-end tests
+# End-to-end tests
 pnpm test:e2e
 
-# Build for production
+# Production build
 pnpm build
 
-# Clean build artifacts
+# Clean artifacts
 pnpm clean
 ```
 
-## Roadmap
-
-### Active development
-
-- [x] SQS provider (connect, list, publish, consume)
-- [x] RabbitMQ provider (connect, list, publish, consume)
-- [x] Message normalization via `QueueMessage` interface
-- [x] Dark / Light theme
-- [x] JSON payload viewer
-- [x] Message search and filter
-
-- [ ] Message re-drive (re-publish to a different queue)
-- [ ] Saved connections (persist connection config)
-
-### Future
-
-- [ ] Azure Service Bus provider
-- [ ] Redis Streams provider
-- [ ] Google Pub/Sub provider
-- [ ] Message diff (compare two messages side by side)
-- [ ] Message replay (re-publish historical messages)
-- [ ] Team workspaces (share connections and configurations)
-- [ ] Plugin system for third-party providers
+---
 
 ## Architecture
 
-```
-core           ←  Common contracts (QueueClient, QueueMessage, Connection)
+```text
+core
   ↑
-providers      ←  Provider implementations (SQS, RabbitMQ)
+providers
   ↑
-desktop        ←  Electron application (React, Tailwind, shadcnUI)
+desktop
 ```
 
-- `core` never depends on providers.
-- Providers implement `QueueClient` and normalize broker-specific objects into `QueueMessage`.
-- The desktop application has zero knowledge of provider internals. All interaction goes through `QueueClient`.
-- Listening uses native broker mechanisms (SQS long polling, RabbitMQ channel consumers) — no cron jobs.
+### Core
+
+Contains shared contracts and abstractions.
+
+Examples:
+
+* QueueClient
+* QueueMessage
+* Connection
+
+### Providers
+
+Each broker implements the same interface.
+
+Current providers:
+
+* RabbitMQ
+* AWS SQS
+
+### Desktop
+
+Electron + React application built on top of provider abstractions.
+
+The UI never interacts directly with broker-specific implementations.
+
+---
+
+## Roadmap
+
+### Completed
+
+* [x] RabbitMQ provider
+* [x] AWS SQS provider
+* [x] Queue browsing
+* [x] Publish messages
+* [x] Consume messages
+* [x] Delete messages
+* [x] Release messages
+* [x] Replay messages
+* [x] Purge queues
+* [x] Message normalization
+* [x] JSON payload viewer
+* [x] Search and filtering
+* [x] Dark / Light themes
+* [x] Local encrypted connection storage
+
+### Future
+
+* [ ] Azure Service Bus provider
+* [ ] Redis Streams provider
+* [ ] Google Pub/Sub provider
+* [ ] Message re-drive (re-publish to a different queue)
+* [ ] Message diff
+* [ ] Plugin system for third-party providers
+
+---
 
 ## Contributing
 
-Contributions are welcome. Please open an issue first to discuss what you would like to change.
+Contributions are welcome.
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Commit your changes (`git commit -am 'Add my feature'`)
-4. Push to the branch (`git push origin feature/my-feature`)
+2. Create a branch
+
+```bash
+git checkout -b feature/my-feature
+```
+
+3. Commit your changes
+
+```bash
+git commit -m "Add my feature"
+```
+
+4. Push the branch
+
+```bash
+git push origin feature/my-feature
+```
+
 5. Open a Pull Request
 
-See [AGENTS.md](./AGENTS.md) for the full coding guidelines and architecture philosophy.
+See `AGENTS.md` for coding guidelines and architectural decisions.
+
+---
 
 ## License
 
-Distributed under the MIT License. See [LICENSE](./LICENSE) for more information.
+Distributed under the MIT License.
+
+See the LICENSE file for details.
 
 ---
 
 <p align="center">
-  <strong>EasyQueue</strong> — Observability for asynchronous systems, productivity for developers.
+  <strong>Stop switching tabs. Start debugging messages.</strong>
 </p>

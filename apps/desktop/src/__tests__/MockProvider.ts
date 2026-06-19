@@ -54,6 +54,15 @@ export class MockProvider implements QueueClient {
     this.messages.set(queue, existing.filter((m) => m.id !== messageId))
   }
 
+  async releaseMessage(queue: string, messageId: string): Promise<void> {
+    const existing = this.messages.get(queue) ?? []
+    this.messages.set(queue, existing.filter((m) => m.id !== messageId))
+  }
+
+  async releaseQueue(queue: string): Promise<void> {
+    this.messages.set(queue, [])
+  }
+
   async purgeQueue(queue: string): Promise<void> {
     this.messages.set(queue, [])
   }

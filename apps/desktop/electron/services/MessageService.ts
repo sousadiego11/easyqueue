@@ -18,6 +18,16 @@ export class MessageService {
     await client.deleteMessage(queue, messageId)
   }
 
+  async releaseMessage(connectionId: string, queue: string, messageId: string): Promise<void> {
+    const client = this.connectionService.getClient(connectionId)
+    await client.releaseMessage(queue, messageId)
+  }
+
+  async releaseQueue(connectionId: string, queue: string): Promise<void> {
+    const client = this.connectionService.getClient(connectionId)
+    await client.releaseQueue(queue)
+  }
+
   async purgeQueue(connectionId: string, queue: string): Promise<void> {
     const client = this.connectionService.getClient(connectionId)
     await client.purgeQueue(queue)

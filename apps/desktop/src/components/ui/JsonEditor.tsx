@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
 import { createJSONEditor } from "vanilla-jsoneditor"
-import "vanilla-jsoneditor/themes/jse-theme-dark.css"
 import type { Content } from "vanilla-jsoneditor"
+import { cn } from "@/lib/utils"
 
 interface JsonEditorProps {
   content: Content
@@ -54,7 +54,7 @@ function JsonEditor({ content, onChange, dark, readOnly, className }: JsonEditor
     }
   }, [content, readOnly])
 
-  return <div ref={container} className={className} />
+  return <div ref={container} className={cn("json-editor-theme", className)} />
 }
 
 export { JsonEditor }

@@ -6,7 +6,7 @@ import {
   ReceiveMessageCommand,
   SendMessageCommand,
   DeleteMessageCommand,
-  PurgeQueueCommand,
+  ChangeMessageVisibilityCommand,
   type Message,
 } from "@aws-sdk/client-sqs"
 import type { PublishRequest, QueueClient, QueueInfo, QueueMessage } from "@easyqueue/core"
@@ -175,10 +175,59 @@ export class AWSSQSClient implements QueueClient {
     this.fetchedMessages.delete(messageId)
   }
 
+  async releaseMessage(queue: string, messageId: string): Promise<void> {
+    if (!this.client) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
+
+    const receiptHandle = this.fetchedMessages.get(messageId)
+    if (!receiptHandle) return
+
+    const queueUrl = await this.resolveQueueUrl(queue)
+
+    await this.client.send(new ChangeMessageVisibilityCommand({
+      QueueUrl: queueUrl,
+      ReceiptHandle: receiptHandle,
+      VisibilityTimeout: 0,
+    }))
+
+    this.fetchedMessages.delete(messageId)
+  }
+
+  async releaseQueue(queue: string): Promise<void> {
+    if (!this.client) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
+
+    if (this.fetchedMessages.size === 0) return
+
+    const queueUrl = await this.resolveQueueUrl(queue)
+
+    await Promise.all(
+      Array.from(this.fetchedMessages.entries()).map(([messageId, receiptHandle]) =>
+        this.client!.send(new ChangeMessageVisibilityCommand({
+          QueueUrl: queueUrl,
+          ReceiptHandle: receiptHandle,
+          VisibilityTimeout: 0,
+        })).then(() => this.fetchedMessages.delete(messageId))
+      )
+    )
+  }
+
   async purgeQueue(queue: string): Promise<void> {
     if (!this.client) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
+
+    if (this.fetchedMessages.size === 0) return
+
     const queueUrl = await this.resolveQueueUrl(queue)
-    await this.client.send(new PurgeQueueCommand({ QueueUrl: queueUrl }))
+
+    for (const [messageId, receiptHandle] of this.fetchedMessages) {
+      try {
+        await this.client.send(new DeleteMessageCommand({
+          QueueUrl: queueUrl,
+          ReceiptHandle: receiptHandle,
+        }))
+      } catch (err) {
+        console.error("[AWSSQSClient] Failed to delete message during purge:", err)
+      }
+    }
+
     this.fetchedMessages.clear()
   }
 

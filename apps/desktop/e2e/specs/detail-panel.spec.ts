@@ -1,44 +1,5 @@
 import { test, expect } from "@playwright/test"
-
-async function setupWithMessages(page, name: string) {
-  await page.getByLabel("New connection").click()
-  await page.waitForSelector('text=New Connection')
-
-  const dialog = page.getByRole("dialog")
-  await dialog.getByText("AWS SQS").click()
-  await page.waitForSelector('text=Configure AWS SQS')
-
-  await dialog.getByPlaceholder("My Connection").fill(name)
-  await dialog.getByPlaceholder("us-east-1").fill("us-east-1")
-  await dialog.getByPlaceholder("AKIA...").fill("test-key")
-  await dialog.getByPlaceholder("\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022").fill("test-secret")
-
-  await dialog.getByRole("button", { name: "Connect" }).click()
-  await page.waitForTimeout(500)
-
-  await page.getByText(name).first().click()
-  await page.getByText("orders").first().click()
-  await page.waitForTimeout(300)
-
-  await page.evaluate(() => {
-    const conn = window.__connections[0]
-    window.__msgCounter = 1
-    window.__messages[conn.id] = {
-      orders: [
-        {
-          id: "msg-1",
-          queue: "orders",
-          payload: { key: "value" },
-          timestamp: new Date("2024-01-15T10:30:00Z"),
-          headers: { "content-type": "application/json" },
-        },
-      ],
-    }
-  })
-
-  await page.locator('button:has-text("Consume")').first().click()
-  await expect(page.getByText("msg-1")).toBeVisible({ timeout: 5000 })
-}
+import { setupWithMessages } from "../fixtures/helpers"
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript({ path: "e2e/fixtures/apiMock.js" })
@@ -88,7 +49,8 @@ test("delete button removes message and closes panel", async ({ page }) => {
   await page.getByText("msg-1").first().click()
   await expect(page.getByLabel("Close detail panel")).toBeVisible()
 
-  await page.getByRole("button", { name: "Delete" }).click()
+  await page.getByRole("button", { name: "Delete" }).first().click()
+  await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click()
   await expect(page.getByText("Message deleted")).toBeVisible({ timeout: 5000 })
   await expect(page.getByLabel("Close detail panel")).not.toBeVisible()
 })
@@ -106,6 +68,17 @@ test("replay button publishes a duplicate message", async ({ page }) => {
   await expect(page.getByText("msg-2")).toBeVisible({ timeout: 5000 })
 })
 
+test("release button removes message and closes panel", async ({ page }) => {
+  await setupWithMessages(page, "DetailTest")
+
+  await page.getByText("msg-1").first().click()
+  await expect(page.getByLabel("Close detail panel")).toBeVisible()
+
+  await page.getByRole("button", { name: "Release" }).last().click()
+  await expect(page.getByText("Message released")).toBeVisible({ timeout: 5000 })
+  await expect(page.getByLabel("Close detail panel")).not.toBeVisible()
+})
+
 test("replay and delete buttons are disabled when not connected", async ({ page }) => {
   await setupWithMessages(page, "DetailTest")
 
@@ -117,6 +90,7 @@ test("replay and delete buttons are disabled when not connected", async ({ page 
   await disconnectBtn.click()
   await page.waitForTimeout(500)
 
-  await expect(page.getByRole("button", { name: "Replay" })).toBeDisabled()
-  await expect(page.getByRole("button", { name: "Delete" })).toBeDisabled()
+  await expect(page.getByRole("button", { name: "Replay" }).last()).toBeDisabled()
+  await expect(page.getByRole("button", { name: "Release" }).last()).toBeDisabled()
+  await expect(page.getByRole("button", { name: "Delete" }).last()).toBeDisabled()
 })

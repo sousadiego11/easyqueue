@@ -2,7 +2,13 @@
   "release-type": "node",
   "packages": {
     ".": {
-      "extra-files": ["apps/desktop/package.json"]
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "apps/desktop/package.json",
+          "jsonpath": "$.version"
+        }
+      ]
     }
   }
 }

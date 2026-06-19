@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button"
+import { StatusDot } from "@/components/ui/StatusDot"
+import { EmptyState } from "@/components/ui/EmptyState"
 import { useAppStore } from "@/stores/useAppStore"
 import { useConnectionStore } from "@/stores/useConnectionStore"
 import { Plug, Plus, Pencil, Power, PowerOff } from "lucide-react"
@@ -30,10 +32,7 @@ function ConnectionList() {
       </div>
       <div className="flex flex-col gap-0.5">
         {connections.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 py-8 text-sidebar-foreground/40">
-            <Plug className="h-8 w-8" />
-            <span className="text-xs">No connections</span>
-          </div>
+          <EmptyState icon={Plug} message="No connections" />
         ) : (
           connections.map((c) => (
             <div
@@ -58,10 +57,7 @@ function ConnectionList() {
               >
                 {c.connected ? <PowerOff className="h-3 w-3" /> : <Power className="h-3 w-3" />}
               </button>
-              <span
-                className={`w-2 h-2 rounded-full flex-shrink-0 ${c.connected ? "bg-[#22c55e]" : "bg-[#f87171]"
-                  }`}
-              />
+              <StatusDot active={c.connected} />
             </div>
           ))
         )}

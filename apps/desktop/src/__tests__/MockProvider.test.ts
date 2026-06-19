@@ -110,4 +110,41 @@ describe("MockProvider", () => {
     const msgs = await p.listMessages("nonexistent")
     expect(msgs).toEqual([])
   })
+
+  it("releaseMessage removes a single message by id", async () => {
+    const p = new MockProvider()
+    await p.publish({ queue: "orders", payload: { id: 1 } })
+    await p.publish({ queue: "orders", payload: { id: 2 } })
+    const before = await p.listMessages("orders")
+    await p.releaseMessage("orders", before[0].id)
+    const after = await p.listMessages("orders")
+    expect(after).toHaveLength(1)
+    expect(after[0].payload).toEqual({ id: 2 })
+  })
+
+  it("releaseMessage does nothing for unknown message id", async () => {
+    const p = new MockProvider()
+    await p.publish({ queue: "orders", payload: "x" })
+    await p.releaseMessage("orders", "nonexistent")
+    const msgs = await p.listMessages("orders")
+    expect(msgs).toHaveLength(1)
+  })
+
+  it("releaseQueue removes all messages from a queue", async () => {
+    const p = new MockProvider()
+    await p.publish({ queue: "orders", payload: "a" })
+    await p.publish({ queue: "orders", payload: "b" })
+    await p.releaseQueue("orders")
+    const msgs = await p.listMessages("orders")
+    expect(msgs).toHaveLength(0)
+  })
+
+  it("releaseQueue only affects the specified queue", async () => {
+    const p = new MockProvider()
+    await p.publish({ queue: "orders", payload: "a" })
+    await p.publish({ queue: "payments", payload: "b" })
+    await p.releaseQueue("orders")
+    expect(await p.listMessages("orders")).toHaveLength(0)
+    expect(await p.listMessages("payments")).toHaveLength(1)
+  })
 })
