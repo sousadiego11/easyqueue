@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0](https://github.com/sousadiego11/easyqueue/compare/v1.2.0...v1.3.0) (2026-06-19)
+
+
+### Features
+
+* add alert dialog for message removal ([7c71922](https://github.com/sousadiego11/easyqueue/commit/7c71922b3c0e236e4c259dcda263d25ca64b18f0))
+* implement release single message and all consume messages ([d3b431a](https://github.com/sousadiego11/easyqueue/commit/d3b431ade6373cb5037eda25975297ef05783f15))
+
+
+### Bug Fixes
+
+* adjust queue purging from rabbit provider, delete all consume messages ([d3b431a](https://github.com/sousadiego11/easyqueue/commit/d3b431ade6373cb5037eda25975297ef05783f15))
+* sqs purge messages only that are consumed ([be0958c](https://github.com/sousadiego11/easyqueue/commit/be0958c97e5470553eb40808069527f2a58a0e54))
+
 ## [1.2.0](https://github.com/sousadiego11/easyqueue/compare/v1.1.1...v1.2.0) (2026-06-18)
 
 
