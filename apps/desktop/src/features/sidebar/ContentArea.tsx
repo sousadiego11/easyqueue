@@ -1,6 +1,14 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { Download, Trash2, Undo2 } from "lucide-react"
 import { MessageTable } from "@/features/messages/MessageTable"
 import { useAppStore } from "@/stores/useAppStore"
@@ -10,8 +18,11 @@ import { toast } from "sonner"
 function ContentArea() {
   const [limit, setLimit] = useState(100)
   const [isReleasing, setIsReleasing] = useState(false)
+  const [showPurgeDialog, setShowPurgeDialog] = useState(false)
+  const [isPurging, setIsPurging] = useState(false)
   const activeQueue = useAppStore((s) => s.activeQueue)
   const currentConnection = useAppStore((s) => s.currentConnection)
+  const messages = useMessageStore((s) => s.messages)
   const loadMessages = useMessageStore((s) => s.loadMessages)
   const releaseQueue = useMessageStore((s) => s.releaseQueue)
   const purgeQueue = useMessageStore((s) => s.purgeQueue)
@@ -42,11 +53,15 @@ function ContentArea() {
 
   async function handlePurge() {
     if (!currentConnection || !activeQueue) return
+    setIsPurging(true)
     try {
       await purgeQueue(currentConnection.id, activeQueue)
       toast.success("Queue purged")
+      setShowPurgeDialog(false)
     } catch {
       toast.error("Failed to purge queue")
+    } finally {
+      setIsPurging(false)
     }
   }
 
@@ -72,10 +87,30 @@ function ContentArea() {
         <Button variant="secondary" size="sm" onClick={handleRelease} loading={isReleasing} disabled={!currentConnection?.connected} className="px-4">
           <Undo2 className="h-3.5 w-3.5" /> Release
         </Button>
-        <Button variant="outline" size="sm" onClick={handlePurge} loading={isLoadingMessages} disabled={!currentConnection?.connected} className="border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500/20 px-4">
+        <Button variant="outline" size="sm" onClick={() => setShowPurgeDialog(true)} disabled={!currentConnection?.connected} className="border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500/20 px-4">
           <Trash2 className="h-3.5 w-3.5" /> Purge
         </Button>
       </div>
+
+      <Dialog open={showPurgeDialog} onOpenChange={setShowPurgeDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Purge Queue</DialogTitle>
+            <DialogDescription>
+              This will permanently remove <strong>{messages.length}</strong> message{messages.length !== 1 ? "s" : ""} from <strong>{activeQueue}</strong>. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPurgeDialog(false)} disabled={isPurging}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handlePurge} loading={isPurging} disabled={isPurging}>
+              <Trash2 className="h-3.5 w-3.5 mr-1" /> Purge
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <MessageTable />
     </div>
   )

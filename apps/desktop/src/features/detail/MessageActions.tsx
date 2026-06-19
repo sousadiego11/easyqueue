@@ -1,4 +1,12 @@
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { useAppStore } from "@/stores/useAppStore"
 import { useMessageStore } from "@/stores/useMessageStore"
 import { queueApi } from "@/api/queueApi"
@@ -12,8 +20,9 @@ function MessageActions() {
   const releaseMessage = useMessageStore((s) => s.releaseMessage)
   const currentConnection = useAppStore((s) => s.currentConnection)
   const [isReplaying, setIsReplaying] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
   const [isReleasing, setIsReleasing] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   if (!selectedMessage) return null
 
@@ -30,19 +39,6 @@ function MessageActions() {
     }
   }
 
-  async function handleDelete() {
-    if (!currentConnection) return
-    setIsDeleting(true)
-    try {
-      await deleteMessage(currentConnection.id, selectedMessage!.queue, selectedMessage!.id)
-      toast.success("Message deleted")
-    } catch {
-      toast.error("Failed to delete message")
-    } finally {
-      setIsDeleting(false)
-    }
-  }
-
   async function handleRelease() {
     if (!currentConnection) return
     setIsReleasing(true)
@@ -53,6 +49,20 @@ function MessageActions() {
       toast.error("Failed to release message")
     } finally {
       setIsReleasing(false)
+    }
+  }
+
+  async function handleDelete() {
+    if (!currentConnection) return
+    setIsDeleting(true)
+    try {
+      await deleteMessage(currentConnection.id, selectedMessage!.queue, selectedMessage!.id)
+      toast.success("Message deleted")
+      setShowDeleteDialog(false)
+    } catch {
+      toast.error("Failed to delete message")
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -68,11 +78,30 @@ function MessageActions() {
           loading={isReleasing} disabled={!currentConnection?.connected} className="px-4">
           <Undo2 className="h-3.5 w-3.5" /> Release
         </Button>
-        <Button variant="outline" size="sm" onClick={handleDelete}
-          loading={isDeleting} disabled={!currentConnection?.connected} className="border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500/20 px-4">
+        <Button variant="outline" size="sm" onClick={() => setShowDeleteDialog(true)}
+          disabled={!currentConnection?.connected} className="border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500/20 px-4">
           <Trash2 className="h-3.5 w-3.5" /> Delete
         </Button>
       </div>
+
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Message</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this message? It will be permanently removed from <strong>{selectedMessage.queue}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} disabled={isDeleting}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} loading={isDeleting} disabled={isDeleting}>
+              <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
