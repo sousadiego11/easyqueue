@@ -106,6 +106,17 @@ test("replay button publishes a duplicate message", async ({ page }) => {
   await expect(page.getByText("msg-2")).toBeVisible({ timeout: 5000 })
 })
 
+test("release button removes message and closes panel", async ({ page }) => {
+  await setupWithMessages(page, "DetailTest")
+
+  await page.getByText("msg-1").first().click()
+  await expect(page.getByLabel("Close detail panel")).toBeVisible()
+
+  await page.getByRole("button", { name: "Release" }).last().click()
+  await expect(page.getByText("Message released")).toBeVisible({ timeout: 5000 })
+  await expect(page.getByLabel("Close detail panel")).not.toBeVisible()
+})
+
 test("replay and delete buttons are disabled when not connected", async ({ page }) => {
   await setupWithMessages(page, "DetailTest")
 
@@ -117,6 +128,7 @@ test("replay and delete buttons are disabled when not connected", async ({ page 
   await disconnectBtn.click()
   await page.waitForTimeout(500)
 
-  await expect(page.getByRole("button", { name: "Replay" })).toBeDisabled()
-  await expect(page.getByRole("button", { name: "Delete" })).toBeDisabled()
+  await expect(page.getByRole("button", { name: "Replay" }).last()).toBeDisabled()
+  await expect(page.getByRole("button", { name: "Release" }).last()).toBeDisabled()
+  await expect(page.getByRole("button", { name: "Delete" }).last()).toBeDisabled()
 })

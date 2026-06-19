@@ -10,6 +10,8 @@ const mockClientDisconnect = vi.fn()
 const mockListMessages = vi.fn()
 const mockPublish = vi.fn()
 const mockDeleteMessage = vi.fn()
+const mockReleaseMessage = vi.fn()
+const mockReleaseQueue = vi.fn()
 const mockPurgeQueue = vi.fn()
 
 vi.mock("@/api/queueApi", () => ({
@@ -23,6 +25,8 @@ vi.mock("@/api/queueApi", () => ({
     listMessages: (...args: unknown[]) => mockListMessages(...args),
     publish: (...args: unknown[]) => mockPublish(...args),
     deleteMessage: (...args: unknown[]) => mockDeleteMessage(...args),
+    releaseMessage: (...args: unknown[]) => mockReleaseMessage(...args),
+    releaseQueue: (...args: unknown[]) => mockReleaseQueue(...args),
     purgeQueue: (...args: unknown[]) => mockPurgeQueue(...args),
     minimize: vi.fn(),
     maximize: vi.fn(),
@@ -149,6 +153,31 @@ describe("useMessageStore", () => {
     await useMessageStore.getState().deleteMessage("conn-1", "q", "m1")
     expect(useMessageStore.getState().messages).toHaveLength(1)
     expect(useMessageStore.getState().messages[0].id).toBe("m2")
+  })
+
+  it("releaseMessage removes a message from the list", async () => {
+    const msgs = [
+      { id: "m1", queue: "q", payload: {}, timestamp: new Date() },
+      { id: "m2", queue: "q", payload: {}, timestamp: new Date() },
+    ]
+    useMessageStore.setState({ messages: msgs, selectedMessage: msgs[0] })
+    mockReleaseMessage.mockResolvedValueOnce(undefined)
+    await useMessageStore.getState().releaseMessage("conn-1", "q", "m1")
+    expect(useMessageStore.getState().messages).toHaveLength(1)
+    expect(useMessageStore.getState().messages[0].id).toBe("m2")
+    expect(useMessageStore.getState().selectedMessage).toBeNull()
+  })
+
+  it("releaseQueue clears all messages", async () => {
+    const msgs = [
+      { id: "m1", queue: "q", payload: {}, timestamp: new Date() },
+      { id: "m2", queue: "q", payload: {}, timestamp: new Date() },
+    ]
+    useMessageStore.setState({ messages: msgs, selectedMessage: msgs[0] })
+    mockReleaseQueue.mockResolvedValueOnce(undefined)
+    await useMessageStore.getState().releaseQueue("conn-1", "q")
+    expect(useMessageStore.getState().messages).toEqual([])
+    expect(useMessageStore.getState().selectedMessage).toBeNull()
   })
 
   it("purgeQueue clears all messages", async () => {

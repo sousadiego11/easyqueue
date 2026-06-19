@@ -63,3 +63,38 @@ test("purge button exists and is clickable", async ({ page }) => {
   await expect(purgeBtn).toBeVisible()
   await expect(purgeBtn).toBeEnabled()
 })
+
+test("release queue button exists and releases messages", async ({ page }) => {
+  await createConnection(page, "MsgTest")
+  await page.getByText("MsgTest").first().click()
+  await page.getByText("orders").first().click()
+  await page.waitForTimeout(300)
+
+  const releaseBtn = page.getByRole("button", { name: "Release" })
+  await expect(releaseBtn).toBeVisible()
+  await expect(releaseBtn).toBeEnabled()
+
+  await page.locator('button:has-text("Consume")').first().click()
+  await expect(page.getByText("No messages")).toBeVisible({ timeout: 5000 })
+
+  await page.evaluate(() => {
+    const conn = window.__connections[0]
+    window.__messages[conn.id] = {
+      orders: [
+        {
+          id: "msg-1",
+          queue: "orders",
+          payload: { key: "value" },
+          timestamp: new Date(),
+        },
+      ],
+    }
+  })
+
+  await page.locator('button:has-text("Consume")').first().click()
+  await expect(page.getByText("msg-1")).toBeVisible({ timeout: 5000 })
+
+  await releaseBtn.click()
+  await expect(page.getByText("Messages released")).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText("No messages")).toBeVisible({ timeout: 5000 })
+})
