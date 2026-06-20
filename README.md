@@ -97,7 +97,6 @@ Your infrastructure stays under your control.
 | RabbitMQ | ✅ Supported |
 | AWS SQS | ✅ Supported |
 | Azure Service Bus | 📋 Planned |
-| Redis Streams | 📋 Planned |
 | Google Pub/Sub | 📋 Planned |
 
 ---
@@ -262,7 +261,6 @@ The UI never interacts directly with broker-specific implementations.
 ### Future
 
 * [ ] Azure Service Bus provider
-* [ ] Redis Streams provider
 * [ ] Google Pub/Sub provider
 * [ ] Message re-drive (re-publish to a different queue)
 * [ ] Message diff

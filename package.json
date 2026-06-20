@@ -6,6 +6,8 @@
   },
   "scripts": {
     "dev": "pnpm --filter @easyqueue/desktop dev",
+    "dev:docs": "pnpm --filter @easyqueue/docs dev",
+    "build:docs": "pnpm --filter @easyqueue/docs build",
     "build": "pnpm --filter @easyqueue/desktop build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm --filter @easyqueue/desktop test",

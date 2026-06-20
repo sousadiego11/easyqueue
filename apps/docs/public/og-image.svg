@@ -1,0 +1,43 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0B0814"/>
+      <stop offset="50%" stop-color="#13102A"/>
+      <stop offset="100%" stop-color="#0B0814"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="600" y1="0" x2="600" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6D4AFF" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#6D4AFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="logoBg" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6D4AFF"/>
+      <stop offset="100%" stop-color="#1E1248"/>
+    </linearGradient>
+    <linearGradient id="logoStroke" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#5B21B6"/>
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1200" y2="0">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#A78BFA"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <g transform="translate(340, 115) scale(0.6)">
+    <rect x="64" y="64" width="384" height="384" rx="80" fill="url(#logoBg)" stroke="url(#logoStroke)" stroke-width="4"/>
+    <path d="M155 170 C155 145 175 125 200 125 H312 C337 125 357 145 357 170 V178 H292 C286 178 281 173 281 167 C281 161 276 156 270 156 H200 C194 156 189 161 189 167 C189 173 184 178 178 178 H155 Z" fill="white"/>
+    <circle cx="170" cy="256" r="22" fill="white"/>
+    <rect x="210" y="220" width="150" height="72" rx="18" fill="white"/>
+    <path d="M155 334 C155 359 175 379 200 379 H312 C337 379 357 359 357 334 V326 H292 C286 326 281 331 281 337 C281 343 276 348 270 348 H200 C194 348 189 343 189 337 C189 331 184 326 178 326 H155 Z" fill="white"/>
+  </g>
+
+  <text x="600" y="410" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="72" font-weight="800" fill="url(#titleGrad)" letter-spacing="-2">EasyQueue</text>
+
+  <text x="600" y="460" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="28" font-weight="500" fill="#9D94B8" letter-spacing="0.5">The Postman for Message Brokers</text>
+
+  <rect x="390" y="500" width="420" height="48" rx="24" fill="#6D4AFF" opacity="0.12"/>
+  <text x="600" y="532" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="18" font-weight="500" fill="#A78BFA">RabbitMQ &amp; AWS SQS · Windows, macOS, Linux · Open Source</text>
+</svg>
