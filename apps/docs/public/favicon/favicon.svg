@@ -1,0 +1,17 @@
+<svg width="32" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fbg" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6D4AFF"/>
+      <stop offset="100%" stop-color="#1E1248"/>
+    </linearGradient>
+    <linearGradient id="fstr" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#5B21B6"/>
+    </linearGradient>
+  </defs>
+  <rect x="64" y="64" width="384" height="384" rx="80" fill="url(#fbg)" stroke="url(#fstr)" stroke-width="4"/>
+  <path d="M155 170 C155 145 175 125 200 125 H312 C337 125 357 145 357 170 V178 H292 C286 178 281 173 281 167 C281 161 276 156 270 156 H200 C194 156 189 161 189 167 C189 173 184 178 178 178 H155 Z" fill="white"/>
+  <circle cx="170" cy="256" r="22" fill="white"/>
+  <rect x="210" y="220" width="150" height="72" rx="18" fill="white"/>
+  <path d="M155 334 C155 359 175 379 200 379 H312 C337 379 357 359 357 334 V326 H292 C286 326 281 331 281 337 C281 343 276 348 270 348 H200 C194 348 189 343 189 337 C189 331 184 326 178 326 H155 Z" fill="white"/>
+</svg>

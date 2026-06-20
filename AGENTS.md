@@ -142,7 +142,6 @@ pnpm test:e2e              # e2e em apps/desktop
 - [ ] Message re-drive (re-publicar em fila diferente)
 - [ ] Conexões persistidas (salvar config)
 - [ ] Azure Service Bus provider
-- [ ] Redis Streams provider
 - [ ] Google Pub/Sub provider
 - [ ] Message diff
 - [ ] Message replay histórico
