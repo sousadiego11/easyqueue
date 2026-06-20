@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/sousadiego11/easyqueue/compare/v1.3.0...v1.4.0) (2026-06-20)
+
+
+### Features
+
+* release landing page ([78a9d70](https://github.com/sousadiego11/easyqueue/commit/78a9d7034a92936ad46492a27a79a3f24626b3b8))
+
 ## [1.3.0](https://github.com/sousadiego11/easyqueue/compare/v1.2.0...v1.3.0) (2026-06-19)
 
 
