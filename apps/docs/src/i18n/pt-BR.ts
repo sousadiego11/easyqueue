@@ -10,9 +10,9 @@ export default {
     star: "Star no GitHub",
   },
   hero: {
-    version: "Latest Release",
+    version: "Versão mais recente",
     title: "EasyQueue",
-    tagline: "The Postman for Message Brokers",
+    tagline: "O Postman para Mensageria",
     subtitle:
       "Um app desktop para inspecionar, publicar e debugar mensagens de filas RabbitMQ, AWS SQS e muito mais — tudo em uma interface unificada.",
     cta: {
