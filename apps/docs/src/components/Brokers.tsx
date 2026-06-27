@@ -2,9 +2,9 @@ import { useTranslation } from "react-i18next"
 import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/Badge"
 import { Card } from "@/components/ui/Card"
-import { CircleDot, Globe, Database, Layers, Radio } from "lucide-react"
+import { CircleDot, Globe, Database, Layers } from "lucide-react"
 
-const icons = [CircleDot, Globe, Database, Layers, Radio]
+const icons = [CircleDot, Globe, Database, Layers]
 
 function BrokerBadge({ supported, label }: { supported: boolean; label: string }) {
   return (
@@ -20,7 +20,13 @@ export function Brokers() {
     desc: string
   }[]
 
-  const supportedMap = [true, true, false, false, false]
+  const supportedMap: Record<string, boolean> = {
+    RabbitMQ: true,
+    "AWS SQS": true,
+    "Azure Service Bus": false,
+    "Google Pub/Sub": false,
+    Redis: false,
+  }
 
   return (
     <section id="brokers" className="py-24 px-6 bg-bg-alt" aria-label="Brokers suportados">
@@ -46,7 +52,7 @@ export function Brokers() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item, i) => {
             const Icon = icons[i] || Globe
-            const supported = supportedMap[i]
+            const supported = supportedMap[item.name] ?? false
             return (
               <motion.div
                 key={item.name}
@@ -56,13 +62,13 @@ export function Brokers() {
                 transition={{ delay: i * 0.1, duration: 0.4 }}
               >
                 <Card
-                  className={`p-8 text-center transition-all duration-300 hover:-translate-y-1 ${
+                  className={`p-8 text-center transition-all duration-300 group cursor-default ${
                     supported
-                      ? "hover:border-green"
-                      : "hover:border-gray-badge"
+                      ? "hover:-translate-y-1 hover:border-green/50 hover:shadow-[0_12px_40px_rgba(34,197,94,0.08)]"
+                      : "hover:-translate-y-1 hover:border-gray-badge/50 hover:shadow-[0_8px_32px_rgba(156,163,175,0.06)]"
                   }`}
                 >
-                  <div className="mb-4 flex justify-center text-accent">
+                  <div className="mb-4 flex justify-center text-accent transition-all duration-300 group-hover:scale-105">
                     <Icon className="h-12 w-12" strokeWidth={1.5} />
                   </div>
                   <h3 className="mb-2.5 text-xl font-semibold">{item.name}</h3>

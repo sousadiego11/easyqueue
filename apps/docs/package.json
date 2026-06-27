@@ -18,7 +18,8 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-i18next": "^15.6.1",
-    "tailwind-merge": "^3.2.0"
+    "tailwind-merge": "^3.2.0",
+    "yet-another-react-lightbox": "^3.32.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.4",

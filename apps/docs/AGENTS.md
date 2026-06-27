@@ -43,7 +43,7 @@ apps/docs/
 │   │   ├── logo.svg
 │   │   ├── dark.png
 │   │   ├── light.png
-│   │   └── preview.gif
+│   │   └── preview.mp4
 │   ├── favicon/               ← SVG + ICO + PNGs em vários tamanhos
 │   ├── og-image.png           ← OG image rasterizado (1200x630)
 │   └── og-image.svg           ← Fonte editável
