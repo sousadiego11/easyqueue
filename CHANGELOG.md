@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/sousadiego11/easyqueue/compare/v1.4.0...v1.5.0) (2026-06-27)
+
+
+### Features
+
+* add lightbox to preview images with quality ([19ac846](https://github.com/sousadiego11/easyqueue/commit/19ac846b68421b3b430a01392af23362936fdcc5))
+
 ## [1.4.0](https://github.com/sousadiego11/easyqueue/compare/v1.3.0...v1.4.0) (2026-06-20)
 
 
