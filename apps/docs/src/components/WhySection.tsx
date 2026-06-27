@@ -15,7 +15,10 @@ export function WhySection() {
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7 }}
         >
-          <div className="rounded-2xl border border-red/20 bg-red/5 p-10">
+          <motion.div
+            className="rounded-2xl border border-red/20 bg-red/5 p-10 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(239,68,68,0.08)]"
+            whileHover={{ scale: 1.005 }}
+          >
             <h2 className="text-[22px] font-bold mb-5">{t("why.problem.title")}</h2>
             <p className="mb-4 text-text-secondary">{t("why.problem.desc")}</p>
             <ul className="mb-5 flex flex-col gap-2.5">
@@ -29,13 +32,27 @@ export function WhySection() {
               )}
             </ul>
             <p className="font-semibold text-text">{t("why.problem.conclusion")}</p>
-          </div>
+          </motion.div>
 
-          <div className="hidden md:flex items-center justify-center pt-10 text-primary">
-            <ArrowRight className="h-12 w-12" />
-          </div>
+          <motion.div
+            className="hidden md:flex items-center justify-center pt-10"
+            initial={{ opacity: 0, x: -10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            <motion.div
+              animate={{ x: [0, 4, 0] }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            >
+              <ArrowRight className="h-12 w-12 text-primary" />
+            </motion.div>
+          </motion.div>
 
-          <div className="rounded-2xl border border-green/20 bg-green/5 p-10">
+          <motion.div
+            className="rounded-2xl border border-green/20 bg-green/5 p-10 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(34,197,94,0.08)]"
+            whileHover={{ scale: 1.005 }}
+          >
             <h2 className="text-[22px] font-bold mb-5">{t("why.solution.title")}</h2>
             <p className="mb-4 text-text-secondary">{t("why.solution.desc")}</p>
             <ul className="mb-5 flex flex-col gap-2.5">
@@ -48,8 +65,8 @@ export function WhySection() {
                 ),
               )}
             </ul>
-            <p className="font-semibold text-text">{t("why.problem.conclusion")}</p>
-          </div>
+            <p className="font-semibold text-text">{t("why.solution.conclusion")}</p>
+          </motion.div>
         </motion.div>
       </div>
     </section>

@@ -5,12 +5,16 @@ export function Footer() {
   const { t } = useTranslation()
 
   return (
-    <footer className="border-t border-surface-border py-12 px-6" role="contentinfo" aria-label={t("footer.aria")}>
+    <footer
+      className="border-t border-surface-border py-12 px-6"
+      role="contentinfo"
+      aria-label={t("footer.aria")}
+    >
       <div className="mx-auto max-w-[1100px]">
         <div className="mb-8 flex flex-col items-center justify-between gap-5 md:flex-row">
           <div className="flex items-center gap-2.5 font-bold text-base">
-            <img src="/assets/logo.svg" alt="" width={28} height={28} className="rounded-md" />
-            EasyQueue
+            <img src="/assets/logo.svg" alt="" width={28} height={28} className="rounded-md shrink-0" />
+            <span>EasyQueue</span>
           </div>
 
           <div className="flex flex-wrap justify-center gap-6">
@@ -18,27 +22,27 @@ export function Footer() {
               href="https://github.com/sousadiego11/easyqueue"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text transition-colors"
+              className="group flex items-center gap-1.5 text-sm text-text-secondary hover:text-text transition-colors"
             >
-              <Github className="h-[18px] w-[18px]" aria-hidden="true" />
+              <Github className="h-[18px] w-[18px] transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
               {t("footer.links.github")}
             </a>
             <a
               href="https://github.com/sousadiego11/easyqueue/blob/main/LICENSE"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text transition-colors"
+              className="group flex items-center gap-1.5 text-sm text-text-secondary hover:text-text transition-colors"
             >
-              <FileText className="h-[18px] w-[18px]" aria-hidden="true" />
+              <FileText className="h-[18px] w-[18px] transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
               {t("footer.links.license")}
             </a>
             <a
               href="https://github.com/sousadiego11/easyqueue/blob/main/CONTRIBUTING.md"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text transition-colors"
+              className="group flex items-center gap-1.5 text-sm text-text-secondary hover:text-text transition-colors"
             >
-              <Users className="h-[18px] w-[18px]" aria-hidden="true" />
+              <Users className="h-[18px] w-[18px] transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
               {t("footer.links.contribute")}
             </a>
           </div>

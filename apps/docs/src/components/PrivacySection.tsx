@@ -47,13 +47,13 @@ export function PrivacySection() {
             return (
               <motion.div
                 key={item.title}
-                className="rounded-xl border border-surface-border bg-surface p-7"
+                className="rounded-xl border border-surface-border bg-surface p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_32px_rgba(109,74,255,0.06)]"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ delay: i * 0.1, duration: 0.4 }}
               >
-                <Icon className="mb-3 h-6 w-6 text-accent" aria-hidden="true" />
+                <Icon className="mb-3 h-6 w-6 text-accent transition-all duration-300 group-hover:scale-110" aria-hidden="true" />
                 <h3 className="mb-2 font-semibold">{item.title}</h3>
                 <p className="text-sm leading-relaxed text-text-secondary">{item.desc}</p>
               </motion.div>

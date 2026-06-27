@@ -21,7 +21,7 @@ export function StarSection() {
         >
           <motion.div
             className="mb-6 flex justify-center"
-            animate={{ scale: [1, 1.1, 1] }}
+            animate={{ scale: [1, 1.12, 1] }}
             transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
           >
             <Star className="h-16 w-16 fill-yellow-400 text-yellow-400" strokeWidth={1.5} />

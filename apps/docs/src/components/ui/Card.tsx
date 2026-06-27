@@ -9,7 +9,7 @@ function Card({ className, children, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-surface-border bg-surface transition-all duration-300",
+        "rounded-xl border border-surface-border bg-surface shadow-sm transition-all duration-300",
         className,
       )}
       {...props}
