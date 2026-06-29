@@ -66,7 +66,7 @@ export default {
       },
       {
         title: "Consumir filas",
-        desc: "Receba mensagens em tempo real com long polling (SQS) ou channel.get (RabbitMQ).",
+        desc: "Receba mensagens em tempo real com polling nativo, consumers push ou stream listeners.",
       },
       {
         title: "Release & Replay",
