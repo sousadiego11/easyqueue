@@ -6,10 +6,17 @@ import { useConnectionStore } from "@/stores/useConnectionStore"
 import { Plug, Plus, Pencil, Power, PowerOff } from "lucide-react"
 import sqsIcon from "@/icons/SQS.svg"
 import rabbitIcon from "@/icons/RABBIT.svg"
+import redisIcon from "@/icons/REDIS.svg"
+import type { Provider } from "@easyqueue/core"
+
+const providerIcon: Record<Provider, string> = {
+  sqs: sqsIcon,
+  rabbitmq: rabbitIcon,
+  redis: redisIcon,
+}
 
 function providerIconSrc(provider: string): string {
-  if (provider === "sqs") return sqsIcon
-  return rabbitIcon
+  return providerIcon[provider as Provider] ?? rabbitIcon
 }
 
 function ConnectionList() {

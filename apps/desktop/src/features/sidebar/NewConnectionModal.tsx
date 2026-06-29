@@ -13,46 +13,104 @@ import { useConnectionStore } from "@/stores/useConnectionStore"
 import { toast } from "sonner"
 import sqsIcon from "@/icons/SQS.svg"
 import rabbitIcon from "@/icons/RABBIT.svg"
+import redisIcon from "@/icons/REDIS.svg"
+import type { Provider } from "@easyqueue/core"
+import type { ProviderField } from "./types"
 
-type ProviderType = "sqs" | "rabbitmq"
-
-type ProviderField = {
-  key: string
-  label: string
-  placeholder: string
-  required: boolean
-  type?: "text" | "password"
-}
-
-const providerFields: Record<string, ProviderField[]> = {
+const providerFields: Record<Provider, ProviderField[]> = {
   sqs: [
     { key: "region", label: "Region", placeholder: "us-east-1", required: true },
     { key: "accessKeyId", label: "Access Key ID", placeholder: "AKIA...", required: true },
-    { key: "secretAccessKey", label: "Secret Access Key", placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", required: true, type: "password" },
+    { key: "secretAccessKey", label: "Secret Access Key", placeholder: "••••••••", required: true, type: "password" },
   ],
   rabbitmq: [
     { key: "url", label: "AMQP URL", placeholder: "amqp://guest:guest@localhost:5672", required: true },
-    { key: "managementUrl", label: "Management URL", placeholder: "http://guest:guest@localhost:15672", required: true },
+    { key: "managementUrl", label: "Management URL", placeholder: "http://localhost:15672", required: true },
     { key: "managementUser", label: "Management User", placeholder: "guest", required: false },
-    { key: "managementPassword", label: "Management Password", placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", required: false, type: "password" },
+    { key: "managementPassword", label: "Management Password", placeholder: "••••••••", required: false, type: "password" },
+  ],
+  redis: [
+    { key: "url", label: "URL", placeholder: "redis://localhost:6379", required: true },
   ],
 }
 
-const providerNames: Record<string, string> = {
-  sqs: "AWS SQS",
-  rabbitmq: "RabbitMQ",
+const providerMeta: Record<Provider, { name: string; description: string; icon: string }> = {
+  sqs: { name: "AWS SQS", description: "Amazon Simple Queue Service", icon: sqsIcon },
+  rabbitmq: { name: "RabbitMQ", description: "RabbitMQ message broker", icon: rabbitIcon },
+  redis: { name: "Redis Streams", description: "Redis Streams", icon: redisIcon },
 }
 
-const providerDescriptions: Record<string, string> = {
-  sqs: "Amazon Simple Queue Service",
-  rabbitmq: "RabbitMQ message broker",
+const availableProviders: Provider[] = ["sqs", "rabbitmq", "redis"]
+
+function ProviderList({ onSelect }: { onSelect: (p: Provider) => void }) {
+  return (
+    <div className="flex flex-col gap-2">
+      {availableProviders.map((provider) => {
+        const { name, description, icon } = providerMeta[provider]
+        return (
+          <button
+            key={provider}
+            className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-accent hover:border-primary transition-colors text-left w-full"
+            onClick={() => onSelect(provider)}
+          >
+            <img src={icon} alt="" className="w-8 h-8" />
+            <div>
+              <div className="font-medium text-sm">{name}</div>
+              <div className="text-xs text-muted-foreground">{description}</div>
+            </div>
+          </button>
+        )
+      })}
+    </div>
+  )
 }
 
-const availableProviders: ProviderType[] = ["sqs", "rabbitmq"]
+function ProviderForm({
+  provider,
+  name,
+  onNameChange,
+  values,
+  onFieldChange,
+  error,
+}: {
+  provider: Provider
+  name: string
+  onNameChange: (v: string) => void
+  values: Record<string, string>
+  onFieldChange: (key: string, value: string) => void
+  error: string | null
+}) {
+  const fields = providerFields[provider]
 
-const providerIconSrc: Record<string, string> = {
-  sqs: sqsIcon,
-  rabbitmq: rabbitIcon,
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Connection Name</label>
+        <Input
+          value={name}
+          onChange={(e) => onNameChange(e.target.value)}
+          placeholder="My Connection"
+        />
+      </div>
+
+      {fields.map((field) => (
+        <div key={field.key} className="space-y-2">
+          <label className="text-sm font-medium">
+            {field.label}
+            {field.required && <span className="text-destructive"> *</span>}
+          </label>
+          <Input
+            type={field.type ?? "text"}
+            value={values[field.key] ?? ""}
+            onChange={(e) => onFieldChange(field.key, e.target.value)}
+            placeholder={field.placeholder}
+          />
+        </div>
+      ))}
+
+      {error && <p className="text-xs text-destructive">{error}</p>}
+    </div>
+  )
 }
 
 function NewConnectionModal() {
@@ -68,11 +126,9 @@ function NewConnectionModal() {
   const isEditing = editingConnectionId !== null
   const editingConnection = isEditing ? connections.find((c) => c.id === editingConnectionId) : null
 
-  const [step, setStep] = useState<"select" | "config">(
-    editingConnection ? "config" : "select"
-  )
-  const [selectedProvider, setSelectedProvider] = useState<ProviderType | null>(
-    editingConnection ? (editingConnection.provider as ProviderType) : null
+  const [step, setStep] = useState<"select" | "config">(editingConnection ? "config" : "select")
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
+    editingConnection ? (editingConnection.provider as Provider) : null
   )
   const [formValues, setFormValues] = useState<Record<string, string>>({})
   const [name, setName] = useState("")
@@ -81,7 +137,7 @@ function NewConnectionModal() {
   useEffect(() => {
     if (!editingConnection) return
     setName(editingConnection.name)
-    setSelectedProvider(editingConnection.provider as ProviderType)
+    setSelectedProvider(editingConnection.provider as Provider)
     setStep("config")
     const values: Record<string, string> = {}
     for (const [key, value] of Object.entries(editingConnection.config)) {
@@ -91,28 +147,18 @@ function NewConnectionModal() {
   }, [editingConnectionId])
 
   function handleClose() {
-    if (isEditing) {
-      closeEditModal()
-    } else {
-      closeModal()
-    }
+    isEditing ? closeEditModal() : closeModal()
   }
 
-  function handleSelectProvider(provider: ProviderType) {
-    if (isEditing) return
+  function handleSelectProvider(provider: Provider) {
     setSelectedProvider(provider)
     setFormValues({})
-    setName(providerNames[provider])
+    setName(providerMeta[provider].name)
     setError(null)
     setStep("config")
   }
 
-  function handleFieldChange(key: string, value: string) {
-    setFormValues((prev) => ({ ...prev, [key]: value }))
-  }
-
   function handleBack() {
-    if (isEditing) return
     setStep("select")
     setSelectedProvider(null)
     setError(null)
@@ -122,26 +168,24 @@ function NewConnectionModal() {
     if (!selectedProvider) return
 
     const fields = providerFields[selectedProvider]
-    for (const field of fields) {
-      if (field.required && !formValues[field.key]) {
-        setError(`${field.label} is required`)
-        return
-      }
+    const missing = fields.find((f) => f.required && !formValues[f.key])
+    if (missing) {
+      setError(`${missing.label} is required`)
+      return
     }
 
-    try {
-      const config: Record<string, unknown> = {}
-      for (const field of fields) {
-        config[field.key] = formValues[field.key]
-      }
+    const config: Record<string, unknown> = Object.fromEntries(
+      fields.map((f) => [f.key, formValues[f.key]])
+    )
 
+    try {
       if (isEditing && editingConnectionId) {
-        const result = await updateConnection(editingConnectionId, name || providerNames[selectedProvider], selectedProvider, config)
+        const result = await updateConnection(editingConnectionId, name || providerMeta[selectedProvider].name, selectedProvider, config)
         setCurrentConnection(result)
         closeEditModal()
         toast.success("Connection updated")
       } else {
-        await connect(name || providerNames[selectedProvider], selectedProvider, config)
+        await connect(name || providerMeta[selectedProvider].name, selectedProvider, config)
         closeModal()
         toast.success("Connection created")
       }
@@ -152,80 +196,39 @@ function NewConnectionModal() {
     }
   }
 
-  const fields = selectedProvider ? providerFields[selectedProvider] : []
+  const title = isEditing
+    ? `Edit ${selectedProvider ? providerMeta[selectedProvider].name : "Connection"}`
+    : step === "select"
+      ? "New Connection"
+      : `Configure ${selectedProvider ? providerMeta[selectedProvider].name : ""}`
 
   return (
     <Dialog open={true} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing
-              ? `Edit ${providerNames[selectedProvider ?? ""] || "Connection"}`
-              : step === "select"
-                ? "New Connection"
-                : `Configure ${providerNames[selectedProvider!]}`}
-          </DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
         {step === "select" && !isEditing && (
-          <div className="flex flex-col gap-2">
-            {availableProviders.map((provider) => (
-              <button
-                key={provider}
-                className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-accent hover:border-primary transition-colors text-left w-full"
-                onClick={() => handleSelectProvider(provider)}
-              >
-                <img src={providerIconSrc[provider]} alt="" className="w-8 h-8" />
-                <div>
-                  <div className="font-medium text-sm">{providerNames[provider]}</div>
-                  <div className="text-xs text-muted-foreground">{providerDescriptions[provider]}</div>
-                </div>
-              </button>
-            ))}
-          </div>
+          <ProviderList onSelect={handleSelectProvider} />
         )}
 
         {step === "config" && selectedProvider && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Connection Name</label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="My Connection"
-              />
-            </div>
-
-            {fields.map((field) => (
-              <div key={field.key} className="space-y-2">
-                <label className="text-sm font-medium">
-                  {field.label}
-                  {field.required && <span className="text-destructive"> *</span>}
-                </label>
-                <Input
-                  type={field.type ?? "text"}
-                  value={formValues[field.key] ?? ""}
-                  onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                  placeholder={field.placeholder}
-                />
-              </div>
-            ))}
-
-            {error && (
-              <div className="text-xs text-destructive mt-1">{error}</div>
-            )}
-          </div>
+          <ProviderForm
+            provider={selectedProvider}
+            name={name}
+            onNameChange={setName}
+            values={formValues}
+            onFieldChange={(key, value) => setFormValues((prev) => ({ ...prev, [key]: value }))}
+            error={error}
+          />
         )}
 
         <DialogFooter>
           {step === "config" && !isEditing && (
-            <Button variant="ghost" onClick={handleBack}>
-              Back
-            </Button>
+            <Button variant="ghost" onClick={handleBack}>Back</Button>
           )}
-          <Button variant="outline" onClick={handleClose}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={handleClose}>Cancel</Button>
           {step === "config" && (
             <Button onClick={handleSubmit} loading={isLoading}>
               {isEditing ? "Save" : "Connect"}
