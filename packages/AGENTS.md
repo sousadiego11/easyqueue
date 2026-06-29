@@ -60,6 +60,13 @@ export interface ProviderConfigs {
 // 3. Provider type is automatic (keyof ProviderConfigs)
 ```
 
+File: `packages/core/src/index.ts` — export the new type in the barrel:
+
+```ts
+export type { Connection, Provider, ProviderConfigs, SQSConfig, RabbitMQConfig, RedisConfig, XxxConfig } from "./interfaces/Connection"
+//                                                                                                  ^^^^^^^^ NEW
+```
+
 ---
 
 ### 2. Provider implementation
@@ -527,10 +534,11 @@ pnpm --filter @easyqueue/docs build
 | `apps/desktop/src/features/sidebar/ConnectionList.tsx` | Add icon to `providerIcon` record |
 | `apps/desktop/src/features/sidebar/NewConnectionModal.tsx` | Add fields + meta + available |
 
-### Core (1 file)
+### Core (2 files)
 | File | Action |
 |---|---|
 | `packages/core/src/interfaces/Connection.ts` | Add config type + ProviderConfigs entry |
+| `packages/core/src/index.ts` | Export new config type in barrel |
 
 ### Docs (3 files)
 | File | Action |
@@ -553,6 +561,7 @@ pnpm --filter @easyqueue/docs build
 | To understand | File |
 |---|---|
 | QueueClient interface | `packages/core/src/interfaces/QueueClient.ts` |
+| Core barrel exports | `packages/core/src/index.ts` |
 | Config types + Provider union | `packages/core/src/interfaces/Connection.ts` |
 | QueueMessage model | `packages/core/src/interfaces/QueueMessage.ts` |
 | Simple implementation example | `packages/provider-redisstreams/src/index.ts` |

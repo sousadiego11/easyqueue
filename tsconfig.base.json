@@ -25,6 +25,9 @@
             ],
             "@easyqueue/provider-redisstreams": [
                 "packages/provider-redisstreams/src/index.ts"
+            ],
+            "@easyqueue/provider-azureservicebus": [
+                "packages/provider-azureservicebus/src/index.ts"
             ]
         }
     }

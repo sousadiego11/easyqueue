@@ -8,12 +8,14 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Info } from "lucide-react"
 import { useAppStore } from "@/stores/useAppStore"
 import { useConnectionStore } from "@/stores/useConnectionStore"
 import { toast } from "sonner"
 import sqsIcon from "@/icons/SQS.svg"
 import rabbitIcon from "@/icons/RABBIT.svg"
 import redisIcon from "@/icons/REDIS.svg"
+import azureIcon from "@/icons/AZURE.svg"
 import type { Provider } from "@easyqueue/core"
 import type { ProviderField } from "./types"
 
@@ -25,12 +27,15 @@ const providerFields: Record<Provider, ProviderField[]> = {
   ],
   rabbitmq: [
     { key: "url", label: "AMQP URL", placeholder: "amqp://guest:guest@localhost:5672", required: true },
-    { key: "managementUrl", label: "Management URL", placeholder: "http://localhost:15672", required: true },
+    { key: "managementUrl", label: "Management URL", placeholder: "http://localhost:15672", required: true, info: "Required so EasyQueue can list queues via the RabbitMQ Management HTTP API." },
     { key: "managementUser", label: "Management User", placeholder: "guest", required: false },
     { key: "managementPassword", label: "Management Password", placeholder: "••••••••", required: false, type: "password" },
   ],
   redis: [
     { key: "url", label: "URL", placeholder: "redis://localhost:6379", required: true },
+  ],
+  azureservicebus: [
+    { key: "connectionString", label: "Connection String", placeholder: "Endpoint=sb://...", required: true, info: "Must have Manage permission on the namespace to list queues via the management API." },
   ],
 }
 
@@ -38,9 +43,10 @@ const providerMeta: Record<Provider, { name: string; description: string; icon: 
   sqs: { name: "AWS SQS", description: "Amazon Simple Queue Service", icon: sqsIcon },
   rabbitmq: { name: "RabbitMQ", description: "RabbitMQ message broker", icon: rabbitIcon },
   redis: { name: "Redis Streams", description: "Redis Streams", icon: redisIcon },
+  azureservicebus: { name: "Azure Service Bus", description: "Azure Service Bus", icon: azureIcon },
 }
 
-const availableProviders: Provider[] = ["sqs", "rabbitmq", "redis"]
+const availableProviders: Provider[] = ["sqs", "rabbitmq", "redis", "azureservicebus"]
 
 function ProviderList({ onSelect }: { onSelect: (p: Provider) => void }) {
   return (
@@ -95,9 +101,14 @@ function ProviderForm({
 
       {fields.map((field) => (
         <div key={field.key} className="space-y-2">
-          <label className="text-sm font-medium">
+          <label className="text-sm font-medium inline-flex items-center gap-1">
             {field.label}
             {field.required && <span className="text-destructive"> *</span>}
+            {field.info && (
+              <span title={field.info}>
+                <Info className="size-3.5 text-muted-foreground cursor-help" />
+              </span>
+            )}
           </label>
           <Input
             type={field.type ?? "text"}

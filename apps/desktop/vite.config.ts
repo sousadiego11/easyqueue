@@ -16,6 +16,7 @@ export default defineConfig({
       "@easyqueue/provider-sqs": path.resolve(packagesDir, "provider-sqs/src"),
       "@easyqueue/provider-rabbitmq": path.resolve(packagesDir, "provider-rabbitmq/src"),
       "@easyqueue/provider-redisstreams": path.resolve(packagesDir, "provider-redisstreams/src"),
+      "@easyqueue/provider-azureservicebus": path.resolve(packagesDir, "provider-azureservicebus/src"),
     },
   },
   build: {

@@ -23,7 +23,7 @@ export function Brokers() {
   const supportedMap: Record<string, boolean> = {
     RabbitMQ: true,
     "AWS SQS": true,
-    "Azure Service Bus": false,
+    "Azure Service Bus": true,
     "Google Pub/Sub": false,
     Redis: true,
   }
