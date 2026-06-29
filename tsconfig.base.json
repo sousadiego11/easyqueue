@@ -22,6 +22,12 @@
             ],
             "@easyqueue/provider-rabbitmq": [
                 "packages/provider-rabbitmq/src/index.ts"
+            ],
+            "@easyqueue/provider-redisstreams": [
+                "packages/provider-redisstreams/src/index.ts"
+            ],
+            "@easyqueue/provider-azureservicebus": [
+                "packages/provider-azureservicebus/src/index.ts"
             ]
         }
     }

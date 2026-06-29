@@ -53,6 +53,7 @@ This project follows a simple principle: **be respectful and constructive**. Har
 │   ├── core/             ← Contracts: QueueClient, QueueMessage, Connection
 │   ├── provider-sqs/     ← AWS SQS provider implementation
 │   ├── provider-rabbitmq/← RabbitMQ provider implementation
+│   ├── provider-redisstreams/ ← Redis Streams provider implementation
 │   └── shared/           ← Shared utilities (IPC channels, types)
 ├── .github/workflows/    ← CI (unit tests, e2e, build artifacts)
 ├── AGENTS.md             ← AI agent instructions (root)
@@ -304,7 +305,7 @@ Adding a new provider is one of the most valuable contributions you can make. He
 6. Update `pnpm-workspace.yaml` if needed
 7. Add tests (unit + e2e mock if applicable)
 
-See `packages/provider-sqs/` and `packages/provider-rabbitmq/` as reference implementations.
+See `packages/provider-sqs/`, `packages/provider-rabbitmq/`, and `packages/provider-redisstreams/` as reference implementations.
 
 ---
 

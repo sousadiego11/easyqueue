@@ -5,6 +5,8 @@ import { AWSSQSClient } from "@easyqueue/provider-sqs"
 import { app, safeStorage } from "electron"
 import path from "path"
 import fs from "fs"
+import { RedisStreamClient } from "@easyqueue/provider-redisstreams"
+import { AzureServiceBusClient } from "@easyqueue/provider-azureservicebus"
 
 interface StoredConnection {
   id: string
@@ -95,6 +97,12 @@ export class ConnectionService {
         break
       case "sqs":
         client = new AWSSQSClient(config as any, name)
+        break
+      case "redis":
+        client = new RedisStreamClient(config as any, name)
+        break
+      case "azureservicebus":
+        client = new AzureServiceBusClient(config as any, name)
         break
       default:
         throw new Error(`Provider ${provider} not supported`)

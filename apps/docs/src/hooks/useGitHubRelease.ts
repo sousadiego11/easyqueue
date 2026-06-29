@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
+import pkg from "../../../../package.json"
 
-const FALLBACK_VERSION = "1.3.0"
+const FALLBACK_VERSION = pkg.version
 const API = "https://api.github.com/repos/sousadiego11/easyqueue/releases/latest"
 
 export function useGitHubRelease() {

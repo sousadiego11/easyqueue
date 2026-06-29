@@ -14,7 +14,7 @@ export default {
     title: "EasyQueue",
     tagline: "O Postman para Mensageria",
     subtitle:
-      "Um app desktop para inspecionar, publicar e debugar mensagens de filas RabbitMQ, AWS SQS e muito mais — tudo em uma interface unificada.",
+      "Um app desktop para inspecionar, publicar e debugar mensagens de filas RabbitMQ, AWS SQS, Azure Service Bus e muito mais — tudo em uma interface unificada.",
     cta: {
       download: "Baixar EasyQueue",
       github: "GitHub",
@@ -66,7 +66,7 @@ export default {
       },
       {
         title: "Consumir filas",
-        desc: "Receba mensagens em tempo real com long polling (SQS) ou channel.get (RabbitMQ).",
+        desc: "Receba mensagens em tempo real com polling nativo, consumers push ou stream listeners.",
       },
       {
         title: "Release & Replay",
@@ -90,7 +90,7 @@ export default {
       },
       {
         title: "Múltiplos providers",
-        desc: "Conecte-se a RabbitMQ e AWS SQS em paralelo. Azure, Redis e Google Pub/Sub em breve.",
+        desc: "Conecte-se a RabbitMQ, AWS SQS, Redis Streams e Azure Service Bus em paralelo. Google Pub/Sub em breve.",
       },
     ],
   },
@@ -112,11 +112,15 @@ export default {
       },
       {
         name: "Azure Service Bus",
-        desc: "Suporte a filas e tópicos do Azure. Em desenvolvimento.",
+        desc: "Filas e tópicos do Azure com suporte a connection string, recebimento peek-lock, complete e abandon.",
       },
       {
         name: "Google Pub/Sub",
         desc: "Suporte a tópicos e subscriptions do Google Cloud. Em desenvolvimento.",
+      },
+      {
+        name: "Redis",
+        desc: "Redis Streams com consumer groups, XREADGROUP, XACK e gerenciamento completo de streams.",
       },
     ],
   },

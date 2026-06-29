@@ -32,6 +32,8 @@
     "@base-ui/react": "^1.5.0",
     "@easyqueue/core": "workspace:*",
     "@easyqueue/provider-rabbitmq": "workspace:*",
+    "@easyqueue/provider-redisstreams": "workspace:*",
+    "@easyqueue/provider-azureservicebus": "workspace:*",
     "@easyqueue/provider-sqs": "workspace:*",
     "@easyqueue/shared": "workspace:*",
     "@fontsource-variable/geist": "^5.2.9",

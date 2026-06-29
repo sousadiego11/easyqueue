@@ -11,9 +11,19 @@ export interface RabbitMQConfig extends Record<string, unknown> {
   managementPassword: string
 }
 
+export interface RedisConfig extends Record<string, unknown> {
+  url: string
+}
+
+export interface AzureConfig extends Record<string, unknown> {
+  connectionString: string
+}
+
 export interface ProviderConfigs {
   sqs: SQSConfig
   rabbitmq: RabbitMQConfig
+  redis: RedisConfig
+  azureservicebus: AzureConfig
 }
 
 export type Provider = keyof ProviderConfigs

@@ -10,7 +10,7 @@
     "build:docs": "pnpm --filter @easyqueue/docs build",
     "build": "pnpm --filter @easyqueue/desktop build",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm --filter @easyqueue/desktop test",
+    "test": "pnpm --filter @easyqueue/desktop test && pnpm --filter @easyqueue/provider-sqs test && pnpm --filter @easyqueue/provider-rabbitmq test && pnpm --filter @easyqueue/provider-redisstreams test && pnpm --filter @easyqueue/provider-azureservicebus test",
     "clean": "pnpm -r clean"
   },
   "version": "1.5.0",

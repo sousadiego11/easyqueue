@@ -1,5 +1,5 @@
 {
-  "name": "@easyqueue/provider-sqs",
+  "name": "@easyqueue/provider-azureservicebus",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     "clean": "rm -rf .tsbuildinfo"
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.758.0",
+    "@azure/service-bus": "^7.9.4",
     "@easyqueue/core": "workspace:*"
   },
   "devDependencies": {
