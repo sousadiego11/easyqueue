@@ -90,7 +90,7 @@ export default {
       },
       {
         title: "Multiple providers",
-        desc: "Connect to RabbitMQ and AWS SQS in parallel. Azure, Redis, and Google Pub/Sub coming soon.",
+        desc: "Connect to RabbitMQ, AWS SQS, and Redis Streams in parallel. Azure and Google Pub/Sub coming soon.",
       },
     ],
   },
@@ -117,6 +117,10 @@ export default {
       {
         name: "Google Pub/Sub",
         desc: "Google Cloud topics and subscriptions support. In development.",
+      },
+      {
+        name: "Redis",
+        desc: "Redis Streams with consumer groups, XREADGROUP, XACK, and full stream management.",
       },
     ],
   },

@@ -2,9 +2,9 @@ import { useTranslation } from "react-i18next"
 import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/Badge"
 import { Card } from "@/components/ui/Card"
-import { CircleDot, Globe, Database, Layers } from "lucide-react"
+import { CircleDot, Globe, Database, Layers, Server } from "lucide-react"
 
-const icons = [CircleDot, Globe, Database, Layers]
+const icons = [CircleDot, Globe, Database, Layers, Server]
 
 function BrokerBadge({ supported, label }: { supported: boolean; label: string }) {
   return (
@@ -25,7 +25,7 @@ export function Brokers() {
     "AWS SQS": true,
     "Azure Service Bus": false,
     "Google Pub/Sub": false,
-    Redis: false,
+    Redis: true,
   }
 
   return (
