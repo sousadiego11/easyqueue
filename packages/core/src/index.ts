@@ -1,4 +1,4 @@
-export type { Connection, Provider, ProviderConfigs, SQSConfig, RabbitMQConfig } from "./interfaces/Connection"
+export type { Connection, Provider, ProviderConfigs, SQSConfig, RabbitMQConfig, RedisConfig } from "./interfaces/Connection"
 export type { PublishRequest } from "./interfaces/PublishRequest"
 export type { QueueClient } from "./interfaces/QueueClient"
 export type { QueueInfo } from "./interfaces/QueueInfo"

@@ -36,6 +36,7 @@ packages/
   core/             ← Contratos comuns (QueueClient, QueueMessage, Connection)
   provider-sqs/     ← Provider AWS SQS
   provider-rabbitmq/ ← Provider RabbitMQ
+  provider-redisstreams/ ← Provider Redis Streams
   shared/           ← Utilitários compartilhados
 ```
 

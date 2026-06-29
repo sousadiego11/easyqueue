@@ -77,7 +77,9 @@ src/
 │       └── TitleBar.tsx         ← janela Electron (minimize/maximize/close)
 ├── icons/
 │   ├── LOGO.svg
+│   ├── AZURE.svg
 │   ├── RABBIT.svg
+│   ├── REDIS.svg
 │   └── SQS.svg
 ├── lib/
 │   └── utils.ts                 ← função cn()

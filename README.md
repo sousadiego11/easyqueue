@@ -172,6 +172,7 @@ packages/
   core/
   provider-sqs/
   provider-rabbitmq/
+  provider-redisstreams/
   shared/
 ```
 
