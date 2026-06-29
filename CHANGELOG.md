@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.6.0](https://github.com/sousadiego11/easyqueue/compare/v1.5.0...v1.6.0) (2026-06-29)
+
+
+### Features
+
+* create agents rules for new packages ([8e3943a](https://github.com/sousadiego11/easyqueue/commit/8e3943ac3e989cf9757af828760d96fc38218cf0))
+* create provider for redis streams ([324f65f](https://github.com/sousadiego11/easyqueue/commit/324f65f7842e1e5f3c120180e918ad6c4034043e))
+* **docs:** add redis streams supported for LP ([0b5b476](https://github.com/sousadiego11/easyqueue/commit/0b5b4766da6b48880f456fd1fec678795050e86a))
+* implement provider azure service bus and integration ([963cbb7](https://github.com/sousadiego11/easyqueue/commit/963cbb7bfb5b086a6419e7b7d30812c5b6526df9))
+* integrate desktop with redis streams provider ([495e544](https://github.com/sousadiego11/easyqueue/commit/495e544db5ff8f58460c667225929e53f5a0413d))
+* **tests:** implement tests for all providers for same behaviour ([03b24be](https://github.com/sousadiego11/easyqueue/commit/03b24bedb62a85ee5c86965109a87ae790ce4451))
+
+
+### Bug Fixes
+
+* change fallback version on docs to the current package root version ([f5dd56d](https://github.com/sousadiego11/easyqueue/commit/f5dd56d4531016b62ea9fd113c25a057c1d8970a))
+
 ## [1.5.0](https://github.com/sousadiego11/easyqueue/compare/v1.4.0...v1.5.0) (2026-06-27)
 
 
