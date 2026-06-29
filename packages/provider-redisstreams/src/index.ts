@@ -46,7 +46,14 @@ export class RedisStreamClient implements QueueClient {
             this.fetchedMessages.clear()
         })
 
-        await this.client.connect()
+        try {
+            await this.client.connect()
+        } catch (err) {
+            this.client.destroy()
+            this.client = null
+            throw new QueueError(QueueErrorCode.CONNECTION_FAILED, "Failed to connect to Redis", err)
+        }
+
         this._connected = true
     }
 
