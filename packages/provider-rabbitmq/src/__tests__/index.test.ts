@@ -104,11 +104,13 @@ describe("RabbitMqClient", () => {
       expect(client.connected).toBe(true)
     })
 
-    it("should throw when amqplib fails", async () => {
+    it("should throw CONNECTION_FAILED when amqplib fails", async () => {
       const amqplib = await import("amqplib")
       vi.mocked((amqplib.default as any).connect).mockRejectedValueOnce(new Error("Connection refused"))
       const client = new RabbitMqClient(validConfig)
-      await expect(client.connect()).rejects.toThrow()
+      const promise = client.connect()
+      await expect(promise).rejects.toThrow(QueueError)
+      await expect(promise).rejects.toMatchObject({ code: QueueErrorCode.CONNECTION_FAILED })
       expect(client.connected).toBe(false)
     })
   })

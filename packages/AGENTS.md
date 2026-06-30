@@ -99,7 +99,7 @@ interface QueueClient {
 | Method | Rules |
 |---|---|
 | `constructor` | Validate config with `QueueError(INVALID_CONFIGURATION)`; generate `this.id` via `crypto.randomUUID()`; set `this.provider = "xxx"` |
-| `connect()` | SDK errors must be **wrapped** in `QueueError(CONNECTION_FAILED)` via try/catch |
+| `connect()` | Must perform a **real network call** to verify connectivity (not just instantiate SDK client). SDK errors must be **wrapped** in `QueueError(CONNECTION_FAILED)` via try/catch |
 | `disconnect()` | Must be safe to call when already disconnected |
 | `listQueues()` | Guard with `PROVIDER_NOT_CONNECTED` |
 | `listMessages()` | Use `fetchedMessages` Map to track fetched msgs |
@@ -359,6 +359,25 @@ Tests **must** follow the structure below exactly.
 Use `packages/provider-sqs/src/__tests__/index.test.ts` as the primary reference (SQS = most stable pattern).
 
 ### Test file structure
+
+All providers must have:
+
+```
+  describe("connect")
+    ✓ should connect and set connected to true
+    ✓ should throw CONNECTION_FAILED when <provider> fails   (assert QueueError com CONNECTION_FAILED)
+    ✓ should throw CONNECTION_FAILED when <provider> is unreachable  (se aplicável, rede falha)
+```
+
+**Error assertions — golden rule (connect):**
+
+```ts
+// connect() → QueueError with code CONNECTION_FAILED
+await expect(promise).rejects.toThrow(QueueError)
+await expect(promise).rejects.toMatchObject({ code: QueueErrorCode.CONNECTION_FAILED })
+```
+
+### Complete structure
 
 ```
 describe("XxxClient")

@@ -56,7 +56,12 @@ export class RabbitMqClient implements QueueClient {
   }
 
   async connect(): Promise<void> {
-    this.channelModel = await amqplib.connect((this.config as RabbitMQConfig).url)
+    try {
+      this.channelModel = await amqplib.connect((this.config as RabbitMQConfig).url)
+    } catch (err) {
+      throw new QueueError(QueueErrorCode.CONNECTION_FAILED, "Failed to connect to RabbitMQ", err)
+    }
+
     this._connected = true
 
     this.channelModel.connection.on("close", () => {

@@ -104,6 +104,16 @@ describe("AzureServiceBusClient", () => {
       await expect(promise).rejects.toMatchObject({ code: QueueErrorCode.CONNECTION_FAILED })
       expect(client.connected).toBe(false)
     })
+
+    it("should throw CONNECTION_FAILED when Azure is unreachable", async () => {
+      mocks.mockFetch.mockReset()
+      mocks.mockFetch.mockRejectedValueOnce(new TypeError("Failed to fetch"))
+      const client = new AzureServiceBusClient(validConfig)
+      const promise = client.connect()
+      await expect(promise).rejects.toThrow(QueueError)
+      await expect(promise).rejects.toMatchObject({ code: QueueErrorCode.CONNECTION_FAILED })
+      expect(client.connected).toBe(false)
+    })
   })
 
   describe("disconnect", () => {
