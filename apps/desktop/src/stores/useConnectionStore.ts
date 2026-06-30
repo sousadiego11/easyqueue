@@ -102,6 +102,7 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to toggle connection"
       set({ error: message, isLoading: false })
+      toast.error(message)
       throw err
     }
   },
