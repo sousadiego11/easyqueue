@@ -90,7 +90,7 @@ export default {
       },
       {
         title: "Múltiplos providers",
-        desc: "Conecte-se a RabbitMQ, AWS SQS, Redis Streams e Azure Service Bus em paralelo. Google Pub/Sub em breve.",
+        desc: "Conecte-se a RabbitMQ, AWS SQS, Redis Streams, Azure Service Bus e NATS JetStream em paralelo.",
       },
     ],
   },
@@ -115,12 +115,12 @@ export default {
         desc: "Filas e tópicos do Azure com suporte a connection string, recebimento peek-lock, complete e abandon.",
       },
       {
-        name: "Google Pub/Sub",
-        desc: "Suporte a tópicos e subscriptions do Google Cloud. Em desenvolvimento.",
-      },
-      {
         name: "Redis",
         desc: "Redis Streams com consumer groups, XREADGROUP, XACK e gerenciamento completo de streams.",
+      },
+      {
+        name: "NATS JetStream",
+        desc: "NATS JetStream com pull consumers, assinaturas duráveis e gerenciamento de mensagens baseado em streams.",
       },
     ],
   },

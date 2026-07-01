@@ -24,8 +24,8 @@ export function Brokers() {
     RabbitMQ: true,
     "AWS SQS": true,
     "Azure Service Bus": true,
-    "Google Pub/Sub": false,
     Redis: true,
+    "NATS JetStream": true
   }
 
   return (
@@ -62,11 +62,10 @@ export function Brokers() {
                 transition={{ delay: i * 0.1, duration: 0.4 }}
               >
                 <Card
-                  className={`p-8 text-center transition-all duration-300 group cursor-default ${
-                    supported
+                  className={`p-8 text-center transition-all duration-300 group cursor-default ${supported
                       ? "hover:-translate-y-1 hover:border-green/50 hover:shadow-[0_12px_40px_rgba(34,197,94,0.08)]"
                       : "hover:-translate-y-1 hover:border-gray-badge/50 hover:shadow-[0_8px_32px_rgba(156,163,175,0.06)]"
-                  }`}
+                    }`}
                 >
                   <div className="mb-4 flex justify-center text-accent transition-all duration-300 group-hover:scale-105">
                     <Icon className="h-12 w-12" strokeWidth={1.5} />

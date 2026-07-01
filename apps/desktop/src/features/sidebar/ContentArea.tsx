@@ -73,14 +73,14 @@ function ContentArea() {
           onChange={(e) => setLimit(Math.min(100, Math.max(1, Number(e.target.value))))}
           className="w-20 h-7 text-xs"
         />
-        <Button size="sm" onClick={handleConsume} loading={isLoadingMessages} disabled={!currentConnection?.connected}>
+        <Button size="sm" onClick={handleConsume} loading={isLoadingMessages} disabled={!currentConnection?.connected || !activeQueue}>
           <Download className="h-3.5 w-3.5 mr-1" />
           Consume
         </Button>
-        <Button variant="secondary" size="sm" onClick={handleRelease} loading={isReleasing} disabled={!currentConnection?.connected} className="px-4">
+        <Button variant="secondary" size="sm" onClick={handleRelease} loading={isReleasing} disabled={!currentConnection?.connected || !activeQueue} className="px-4">
           <Undo2 className="h-3.5 w-3.5" /> Release
         </Button>
-        <Button variant="destructiveOutline" size="sm" onClick={() => setShowPurgeDialog(true)} disabled={!currentConnection?.connected} className="px-4">
+        <Button variant="destructiveOutline" size="sm" onClick={() => setShowPurgeDialog(true)} disabled={!currentConnection?.connected || !activeQueue} className="px-4">
           <Trash2 className="h-3.5 w-3.5" /> Purge
         </Button>
       </div>

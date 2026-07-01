@@ -1,0 +1,32 @@
+services:
+  nats:
+    image: nats:alpine
+    container_name: easyqueue-nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: ["-js", "-m", "8222"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null http://localhost:8222/healthz"]
+      interval: 5s
+      retries: 10
+
+  init:
+    profiles: ["cli"]
+    image: curlimages/curl:latest
+    container_name: easyqueue-nats-init
+    depends_on:
+      nats:
+        condition: service_healthy
+    entrypoint: sh
+    command:
+      - -c
+      - |
+        for stream in orders payments notifications; do
+          echo "Creating stream: $$stream"
+          curl -sf -X POST "http://nats:8222/jetstream/stream?name=$$stream" \
+            -H "Content-Type: application/json" \
+            -d '{"subjects":["'"$$stream"'"],"storage":"file","retention":"limits"}' \
+            -o /dev/null
+        done
+        echo "Done!"

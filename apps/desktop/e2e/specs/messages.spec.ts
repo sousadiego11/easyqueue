@@ -26,6 +26,22 @@ test("consume button is disabled when not connected", async ({ page }) => {
   await expect(consumeBtn).toBeDisabled()
 })
 
+test("consume button is disabled when connected but no queue selected", async ({ page }) => {
+  await createConnection(page, "MsgTest")
+  await page.getByText("MsgTest").first().click()
+
+  const consumeBtn = page.locator('button:has-text("Consume")')
+  await expect(consumeBtn).toBeDisabled()
+})
+
+test("publish button is disabled when connected but no queue selected", async ({ page }) => {
+  await createConnection(page, "MsgTest")
+  await page.getByText("MsgTest").first().click()
+
+  const publishBtn = page.locator('button:has-text("Publish")')
+  await expect(publishBtn).toBeDisabled()
+})
+
 test("shows table header columns", async ({ page }) => {
   await expect(page.getByText("Time").first()).toBeVisible()
   await expect(page.getByText("Message ID").first()).toBeVisible()

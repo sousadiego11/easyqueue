@@ -71,7 +71,8 @@ export class AzureServiceBusClient implements QueueClient {
     const keyName = cs.match(/SharedAccessKeyName\s*=\s*([^;]+)/i)?.[1] ?? ""
     const key = cs.match(/SharedAccessKey\s*=\s*([^;]+)/i)?.[1] ?? ""
 
-    const hostWithPort = isEmulator && !host.includes(":") ? `${host}:5300` : host
+    const hostWithoutPort = host.split(":")[0]
+    const hostWithPort = isEmulator ? `${hostWithoutPort}:5300` : host
     const protocol = isEmulator ? "http" : "https"
     const baseUrl = `${protocol}://${hostWithPort}`
     const topParam = top !== undefined ? `&$top=${top}` : ""
@@ -120,6 +121,10 @@ export class AzureServiceBusClient implements QueueClient {
 
     await this.returnFetchedMessages(queue)
 
+    const oldReceiver = this.receivers.get(queue)
+    if (oldReceiver) {
+      try { await oldReceiver.close() } catch { }
+    }
     const receiver = this.client.createReceiver(queue, { receiveMode: "peekLock" })
     this.receivers.set(queue, receiver)
 

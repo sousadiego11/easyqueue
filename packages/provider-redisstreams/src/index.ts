@@ -81,8 +81,8 @@ export class RedisStreamClient implements QueueClient {
     async listMessages(queue: string, limit = 100): Promise<QueueMessage[]> {
         if (!this.client) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
 
-        await this.returnFetchedMessages()
-        await this.ensureConsumerGroup(queue)
+    await this.returnFetchedMessages()
+    await this.ensureConsumerGroup(queue)
 
         const response = await this.client.xReadGroup(
             this.consumerGroup,
@@ -180,21 +180,22 @@ export class RedisStreamClient implements QueueClient {
         await this.client!.xDel(stream, id)
     }
 
-    private async returnFetchedMessages(): Promise<void> {
-        if (!this.client || this.fetchedMessages.size === 0) {
-            this.fetchedMessages.clear()
-            return
-        }
-
-        for (const [messageId, entry] of this.fetchedMessages) {
-            try {
-                await this.requeue(entry.stream, entry.id)
-                this.fetchedMessages.delete(messageId)
-            } catch (err) {
-                console.error("[RedisStreamClient] Failed to requeue message on clear:", err)
-            }
-        }
+  private async returnFetchedMessages(queue?: string): Promise<void> {
+    if (!this.client || this.fetchedMessages.size === 0) {
+      this.fetchedMessages.clear()
+      return
     }
+
+    for (const [messageId, entry] of this.fetchedMessages) {
+      if (queue && entry.stream !== queue) continue
+      try {
+        await this.requeue(entry.stream, entry.id)
+        this.fetchedMessages.delete(messageId)
+      } catch (err) {
+        console.error("[RedisStreamClient] Failed to requeue message on clear:", err)
+      }
+    }
+  }
 
     private async ensureConsumerGroup(queue: string): Promise<void> {
         try {
@@ -207,10 +208,17 @@ export class RedisStreamClient implements QueueClient {
     private toQueueMessage(queue: string, entry: { id: string; message: Record<string, string> }): QueueMessage {
         const { payload, headers, publishedAt } = entry.message
 
+        let parsedPayload: unknown
+        if (payload !== undefined) {
+            parsedPayload = this.tryParse(payload)
+        } else {
+            parsedPayload = entry.message
+        }
+
         return {
             id: entry.id,
             queue,
-            payload: this.tryParse(payload ?? ""),
+            payload: parsedPayload,
             timestamp: publishedAt ? new Date(publishedAt) : new Date(),
             headers: headers ? (this.tryParse(headers) as Record<string, string>) : undefined,
             raw: {

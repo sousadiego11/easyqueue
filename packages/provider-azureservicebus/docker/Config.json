@@ -1,0 +1,18 @@
+{
+  "UserConfig": {
+    "Namespaces": [
+      {
+        "Name": "sbemulatorns",
+        "Queues": [
+          { "Name": "orders" },
+          { "Name": "payments" },
+          { "Name": "notifications" }
+        ],
+        "Topics": []
+      }
+    ],
+    "Logging": {
+      "Type": "console"
+    }
+  }
+}

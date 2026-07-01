@@ -5,4 +5,5 @@ export type ProviderField = {
   required: boolean
   type?: "text" | "password"
   info?: string
+  description?: string
 }

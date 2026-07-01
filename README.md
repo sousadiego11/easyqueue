@@ -96,8 +96,7 @@ Your infrastructure stays under your control.
 |----------|----------|
 | RabbitMQ | ✅ Supported |
 | AWS SQS | ✅ Supported |
-| Azure Service Bus | 📋 Planned |
-| Google Pub/Sub | 📋 Planned |
+| Azure Service Bus | ✅ Supported |
 
 ---
 
@@ -246,6 +245,9 @@ The UI never interacts directly with broker-specific implementations.
 
 * [x] RabbitMQ provider
 * [x] AWS SQS provider
+* [x] Azure Service Bus provider
+* [x] Redis Streams provider
+* [x] NATS JetStream provider
 * [x] Queue browsing
 * [x] Publish messages
 * [x] Consume messages
@@ -261,8 +263,6 @@ The UI never interacts directly with broker-specific implementations.
 
 ### Future
 
-* [ ] Azure Service Bus provider
-* [ ] Google Pub/Sub provider
 * [ ] Message re-drive (re-publish to a different queue)
 * [ ] Message diff
 * [ ] Plugin system for third-party providers

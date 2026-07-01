@@ -1,0 +1,36 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: /
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  init:
+    profiles: ["cli"]
+    image: curlimages/curl:latest
+    container_name: rabbitmq-init
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    entrypoint: sh
+    command:
+      - -c
+      - |
+        for queue in orders payments notifications; do
+          echo "Creating queue: $$queue"
+          curl -sf -u guest:guest -X PUT "http://rabbitmq:15672/api/queues/%2F/$$queue" \
+            -H "Content-Type: application/json" \
+            -d '{"auto_delete": false, "durable": true}' \
+            -o /dev/null
+        done
+        echo "Done!"

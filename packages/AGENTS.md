@@ -149,6 +149,76 @@ interface QueueMessage {
 
 ---
 
+## Behavioral contract (QueueClient semantics)
+
+Além de implementar os métodos da interface, todo provider precisa satisfazer as
+**garantias semânticas** abaixo. Elas valem para todos os brokers; a implementação
+interna pode variar (ack/nack, visibility timeout, XACK/XCLAIM, etc.), mas o
+comportamento observado pela UI deve ser idêntico.
+
+### 1. `listMessages(queue, limit)`
+
+| Garantia | Detalhes |
+|---|---|
+| Retorna até `limit` mensagens | Se a fila tiver menos que `limit`, retorna todas sem lançar erro (array vazio se não houver nenhuma) |
+| Mensagens entram em `fetchedMessages` | Cada mensagem retornada é armazenada no mapa _com o nome da fila_ para permitir filtragem posterior |
+| Mensagens ficam "em consumo" | Nenhuma confirmação (ack) é enviada durante a listagem — elas ficam pendentes até `deleteMessage`/`purgeQueue` (confirmar) ou `releaseMessage`/`releaseQueue` (devolver) |
+| Limpeza de `fetchedMessages` | Antes de buscar novas mensagens, `listMessages` **deve** limpar todo o `fetchedMessages` (nack/requeue/clear). O design é **single-queue-at-a-time**: a UI sempre chama `clearMessages()` ao trocar de fila, e o provider nunca precisa lidar com mensagens de múltiplas filas simultaneamente |
+
+### 2. `purgeQueue` / `deleteMessage`
+
+| Garantia | Detalhes |
+|---|---|
+| Confirma apenas mensagens consumidas | A operação **nunca** deve chamar a API de purge do broker (ex: `PurgeQueue` no SQS, `channel.queuePurge` no RabbitMQ). Deve confirmar individualmente cada mensagem presente em `fetchedMessages` para aquela fila |
+| Mensagens não consumidas são intocadas | Mensagens que estão na fila mas nunca passaram por `listMessages` deste client **não** devem ser afetadas |
+
+### 3. `releaseQueue` / `releaseMessage`
+
+| Garantia | Detalhes |
+|---|---|
+| Devolve à fila | A mensagem deve voltar a ficar disponível no broker (nack com requeue, visibility timeout = 0, XCLAIM + XADD, etc.) |
+| Visível em nova listagem | A mensagem devolvida deve aparecer em chamadas futuras de `listMessages` para a mesma fila |
+| Teste de integração obrigatório | Esse comportamento **precisa** ser coberto por teste de integração (real contra o broker ou Docker), não apenas unitário com mock |
+
+### 4. Republish / replay individual
+
+| Garantia | Detalhes |
+|---|---|
+| Payload e headers idênticos | A mensagem republicada deve ser uma cópia exata da original — mesmo payload (comparação profunda) e mesmos headers |
+| Validação com deep equal | O teste deve comparar `original.payload` com `republicado.payload` usando `toEqual()` ou `deepEqual`, não apenas verificar que `publish()` foi chamado |
+| Cadeia completa | O teste deve: (1) publicar → (2) listar → (3) republicar com os dados da listagem → (4) listar de novo → (5) comparar a mensagem republicada com a original |
+
+### 5. Origem agnóstica das mensagens
+
+| Garantia | Detalhes |
+|---|---|
+| Funciona com qualquer produtor | `listMessages` deve retornar mensagens publicadas **por qualquer produtor** no broker, não apenas as publicadas via `publish()` do EasyQueue |
+| Sem dependência de metadado próprio | Nenhuma implementação pode depender de header/campo que só existe em mensagens publicadas pelo próprio client. Ex: se um produtor externo publica sem `headers` ou sem `publishedAt`, a mensagem ainda deve ser retornada (com `headers: undefined` e `timestamp` inferido) |
+| Tolerância a campos ausentes | `toQueueMessage` deve tratar `undefined` / `null` em campos opcionais sem lançar erro |
+
+### 6. Consistência entre providers
+
+| Garantia | Detalhes |
+|---|---|
+| Mesmo contrato, mecanismo nativo | Cada provider usa o mecanismo nativo do seu broker (ack/nack no RabbitMQ, visibility timeout no SQS, XACK+XDEl no Redis Streams, complete/abandon no Azure SB, ack/modifyAckDeadline no Google Pub/Sub) |
+| A UI não distingue providers | A camada de UI (`ConnectionService`, stores, componentes) não pode precisar saber qual provider está em uso para tomar decisões de fluxo — o contrato semântico deve ser suficiente |
+
+---
+
+### Violações encontradas na auditoria de `provider-sqs`, `provider-rabbitmq` e `provider-redisstreams`
+
+As violações abaixo foram identificadas após aplicar as correções da task anterior.
+Elas **não** foram corrigidas neste documento — devem virar tarefas separadas.
+
+| Provider | Onde | Violação |
+|---|---|---|
+_Nenhuma violação do item 2 (`purgeQueue`/`deleteMessage`) — todos os providers limpam `fetchedMessages` antes de cada `listMessages`, então nunca há mensagens de múltiplas filas no mapa. O design assume **single-queue-at-a-time**: a UI chama `clearMessages()` ao trocar de fila, e o provider zera o mapa a cada `listMessages`. Filtragem por fila em `releaseQueue`/`purgeQueue` é desnecessária nesse modelo._
+| RabbitMQ | `channel.on("error")` (linha 43-48) | Em caso de erro no canal, faz `this.fetchedMessages.clear()` sem nack — mensagens ficam órfãs no broker até timeout |
+| Redis | `consumerGroup` fixo `"easyqueue"` (linha 15) | Duas instâncias do EasyQueue no mesmo Redis compartilham o mesmo consumer group, podendo uma instância ack mensagens da outra |
+| Redis | `toQueueMessage` (linha 208-221) | Assume que os campos da stream entry são exatamente os mesmos que o EasyQueue publica (`payload`, `headers`, `publishedAt`). Mensagens de produtores externos com outros campos podem ter o payload ignorado/perdido |
+
+---
+
 ### 3. `package.json`
 
 See `packages/provider-redisstreams/package.json` as the exact template:

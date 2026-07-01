@@ -16,6 +16,7 @@ import sqsIcon from "@/icons/SQS.svg"
 import rabbitIcon from "@/icons/RABBIT.svg"
 import redisIcon from "@/icons/REDIS.svg"
 import azureIcon from "@/icons/AZURE.svg"
+import natsIcon from "@/icons/NATS.svg"
 import type { Provider } from "@easyqueue/core"
 import type { ProviderField } from "./types"
 
@@ -24,18 +25,24 @@ const providerFields: Record<Provider, ProviderField[]> = {
     { key: "region", label: "Region", placeholder: "us-east-1", required: true },
     { key: "accessKeyId", label: "Access Key ID", placeholder: "AKIA...", required: true },
     { key: "secretAccessKey", label: "Secret Access Key", placeholder: "••••••••", required: true, type: "password" },
+    { key: "endpoint", label: "Endpoint", placeholder: "http://localhost:4566", required: false, info: "Leave empty to use AWS. Use your LocalStack endpoint if using LocalStack." },
   ],
   rabbitmq: [
     { key: "url", label: "AMQP URL", placeholder: "amqp://guest:guest@localhost:5672", required: true },
     { key: "managementUrl", label: "Management URL", placeholder: "http://localhost:15672", required: true, info: "Required so EasyQueue can list queues via the RabbitMQ Management HTTP API." },
-    { key: "managementUser", label: "Management User", placeholder: "guest", required: false },
-    { key: "managementPassword", label: "Management Password", placeholder: "••••••••", required: false, type: "password" },
+    { key: "managementUser", label: "Management User", placeholder: "guest", required: true },
+    { key: "managementPassword", label: "Management Password", placeholder: "••••••••", required: true, type: "password" },
   ],
   redis: [
     { key: "url", label: "URL", placeholder: "redis://localhost:6379", required: true },
   ],
   azureservicebus: [
     { key: "connectionString", label: "Connection String", placeholder: "Endpoint=sb://...", required: true, info: "Must have Manage permission on the namespace to list queues via the management API." },
+  ],
+  natsjetstream: [
+    { key: "servers", label: "Servers", placeholder: "nats://localhost:4222", required: true },
+    { key: "user", label: "User", placeholder: "(optional)", required: false },
+    { key: "password", label: "Password", placeholder: "(optional)", required: false, type: "password" },
   ],
 }
 
@@ -44,9 +51,10 @@ const providerMeta: Record<Provider, { name: string; description: string; icon: 
   rabbitmq: { name: "RabbitMQ", description: "RabbitMQ message broker", icon: rabbitIcon },
   redis: { name: "Redis Streams", description: "Redis Streams", icon: redisIcon },
   azureservicebus: { name: "Azure Service Bus", description: "Azure Service Bus", icon: azureIcon },
+  natsjetstream: { name: "NATS JetStream", description: "NATS JetStream", icon: natsIcon },
 }
 
-const availableProviders: Provider[] = ["sqs", "rabbitmq", "redis", "azureservicebus"]
+const availableProviders: Provider[] = ["sqs", "rabbitmq", "redis", "azureservicebus", "natsjetstream"]
 
 function ProviderList({ onSelect }: { onSelect: (p: Provider) => void }) {
   return (
@@ -116,6 +124,9 @@ function ProviderForm({
             onChange={(e) => onFieldChange(field.key, e.target.value)}
             placeholder={field.placeholder}
           />
+          {field.description && (
+            <p className="text-xs text-muted-foreground">{field.description}</p>
+          )}
         </div>
       ))}
 

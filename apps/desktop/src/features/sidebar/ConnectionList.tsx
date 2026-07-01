@@ -8,6 +8,7 @@ import sqsIcon from "@/icons/SQS.svg"
 import rabbitIcon from "@/icons/RABBIT.svg"
 import redisIcon from "@/icons/REDIS.svg"
 import azureIcon from "@/icons/AZURE.svg"
+import natsIcon from "@/icons/NATS.svg"
 import type { Provider } from "@easyqueue/core"
 
 const providerIcon: Record<Provider, string> = {
@@ -15,6 +16,7 @@ const providerIcon: Record<Provider, string> = {
   rabbitmq: rabbitIcon,
   redis: redisIcon,
   azureservicebus: azureIcon,
+  natsjetstream: natsIcon,
 }
 
 function providerIconSrc(provider: string): string {

@@ -37,22 +37,25 @@ export class RabbitMqClient implements QueueClient {
     }
   }
 
-  private async setupChannel(): Promise<void> {
+  private async createChannel(): Promise<void> {
     if (!this.channelModel) return
     this.channel = await this.channelModel.createChannel()
-
-    this.channel.on("error", async (err) => {
+    this.channel.on("error", (err) => {
       console.error("[RabbitMqClient] Channel error:", err)
-      this.fetchedMessages.clear()
+      this.returnFetchedMessages()
       this.channel = null
-      if (!this._connected) return
-      await new Promise(res => setTimeout(res, 500))
-      try {
-        await this.setupChannel()
-      } catch (setupErr) {
-        console.error("[RabbitMqClient] Failed to recover channel:", setupErr)
-      }
+      this.recoverChannel()
     })
+  }
+
+  private async recoverChannel(): Promise<void> {
+    if (!this._connected || !this.channelModel) return
+    await new Promise(res => setTimeout(res, 500))
+    try {
+      await this.createChannel()
+    } catch (err) {
+      console.error("[RabbitMqClient] Failed to recover channel:", err)
+    }
   }
 
   async connect(): Promise<void> {
@@ -70,11 +73,11 @@ export class RabbitMqClient implements QueueClient {
       this.fetchedMessages.clear()
     })
 
-    await this.setupChannel()
+    await this.createChannel()
   }
 
   async disconnect(): Promise<void> {
-    this.returnFetchedMessages()
+    await this.returnFetchedMessages()
     try { await this.channel?.close() } catch { }
     try { await this.channelModel?.close() } catch { }
     this.channel = null
@@ -84,10 +87,6 @@ export class RabbitMqClient implements QueueClient {
 
   private getManagementAuth(): { base: string; auth: string } {
     const cfg = this.config as RabbitMQConfig
-    if (!cfg.managementUrl) {
-      throw new QueueError(QueueErrorCode.UNSUPPORTED_PROVIDER, "Management URL is required to list queues")
-    }
-
     const managementUrl = new URL(cfg.managementUrl)
     const amqpUrl = new URL(cfg.url)
     const user = cfg.managementUser || managementUrl.username || amqpUrl.username || "guest"
@@ -100,7 +99,7 @@ export class RabbitMqClient implements QueueClient {
   }
 
   async listQueues(): Promise<QueueInfo[]> {
-    if (!this._connected) throw new QueueError(QueueErrorCode.CONNECTION_FAILED, `Failed to list queues`)
+    if (!this._connected) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
 
     const { base, auth } = this.getManagementAuth()
     const res = await fetch(`${base}/api/queues`, {
@@ -205,15 +204,14 @@ export class RabbitMqClient implements QueueClient {
       return
     }
 
-    for (const msg of this.fetchedMessages.values()) {
+    for (const [messageId, msg] of this.fetchedMessages) {
       try {
         this.channel.nack(msg, false, true)
+        this.fetchedMessages.delete(messageId)
       } catch (err) {
         console.error("[RabbitMqClient] Failed to requeue message on clear:", err)
       }
     }
-
-    this.fetchedMessages.clear()
   }
 
   private toQueueMessage(queue: string, msg: GetMessage): QueueMessage {
@@ -221,7 +219,7 @@ export class RabbitMqClient implements QueueClient {
     const payload = this.tryParse(content)
 
     return {
-      id: String(msg.fields.deliveryTag),
+      id: msg.properties.messageId ?? crypto.randomUUID(),
       queue,
       payload,
       timestamp: msg.properties.timestamp ? new Date(msg.properties.timestamp * 1000) : new Date(),

@@ -60,6 +60,20 @@ test("edits a connection name via edit button", async ({ page }) => {
   await expect(page.getByText("NewName").first()).toBeVisible()
 })
 
+test("switching connections clears queue selection and disables action buttons", async ({ page }) => {
+  await createConnection(page, "Conn A")
+  await createConnection(page, "Conn B")
+
+  await page.getByText("Conn A").first().click()
+  await page.getByText("orders").first().click()
+  await expect(page.locator('button:has-text("Consume")')).toBeEnabled()
+
+  await page.getByText("Conn B").first().click()
+  await page.waitForTimeout(300)
+  await expect(page.locator('button:has-text("Consume")')).toBeDisabled()
+  await expect(page.locator('button:has-text("Publish")')).toBeDisabled()
+})
+
 test("shows validation error when required fields are empty", async ({ page }) => {
   await page.getByLabel("New connection").click()
   await page.waitForSelector('text=New Connection')

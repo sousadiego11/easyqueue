@@ -45,7 +45,7 @@ function Publisher() {
       <div className="flex items-center justify-between px-4 py-2 border-b bg-card flex-shrink-0">
         <span className="text-sm font-semibold">Publisher</span>
         <div className="flex items-center gap-2">
-          <Button size="sm" onClick={handleSend} loading={isPublishing} disabled={!currentConnection?.connected}><Play size={14} /> Publish</Button>
+          <Button size="sm" onClick={handleSend} loading={isPublishing} disabled={!currentConnection?.connected || !queue}><Play size={14} /> Publish</Button>
         </div>
       </div>
 
