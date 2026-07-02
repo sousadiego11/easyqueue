@@ -282,7 +282,7 @@ describe("useMessageStore", () => {
 
   it("loadMessages sets error on failure", async () => {
     mockListMessages.mockRejectedValueOnce(new Error("load msgs fail"))
-    await useMessageStore.getState().loadMessages("conn-1", "q")
+    await expect(useMessageStore.getState().loadMessages("conn-1", "q")).rejects.toThrow("load msgs fail")
     expect(useMessageStore.getState().error).toBe("load msgs fail")
   })
 

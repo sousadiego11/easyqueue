@@ -55,6 +55,23 @@ test("has filter inputs", async ({ page }) => {
   await expect(page.getByPlaceholder("Filter payload...")).toBeVisible()
 })
 
+test("shows error when loading messages fails", async ({ page }) => {
+  await createConnection(page, "ErrTest")
+  await page.getByText("ErrTest").first().click()
+  await page.getByText("orders").first().click()
+
+  await page.evaluate(() => {
+    (window as any).queueApi.listMessages = async () => {
+      throw new Error("Something went wrong")
+    }
+  })
+
+  await page.locator('button:has-text("Consume")').first().click()
+
+  await expect(page.getByText("Failed to load messages").first()).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText("Something went wrong")).toBeVisible({ timeout: 5000 })
+})
+
 test("purge button exists and is clickable", async ({ page }) => {
   await createConnection(page, "MsgTest")
   await page.getByText("MsgTest").first().click()
