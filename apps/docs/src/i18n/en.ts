@@ -53,6 +53,7 @@ export default {
     labels: {
       dark: "Dark theme (default)",
       light: "Light theme",
+      connection: "Connection creation",
       animated: "Full workflow in action",
     },
   },

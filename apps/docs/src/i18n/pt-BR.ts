@@ -53,6 +53,7 @@ export default {
     labels: {
       dark: "Tema escuro (padrão)",
       light: "Tema claro",
+      connection: "Criação de conexão",
       animated: "Fluxo completo em ação",
     },
   },

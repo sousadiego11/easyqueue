@@ -7,7 +7,7 @@ Para detalhes operacionais de cada pacote/aplicativo, veja o `AGENTS.md` dentro 
 
 ## O que é
 
-EasyQueue é um aplicativo desktop para inspecionar, publicar e debugar mensagens de fila (SQS, RabbitMQ) — como um Postman, mas para message brokers.
+EasyQueue é um aplicativo desktop para inspecionar, publicar e debugar mensagens de fila (SQS, RabbitMQ, Azure Service Bus, Redis Streams, NATS JetStream) — como um Postman, mas para message brokers.
 
 ---
 
@@ -34,10 +34,12 @@ apps/
 
 packages/
   core/             ← Contratos comuns (QueueClient, QueueMessage, Connection)
-  provider-sqs/     ← Provider AWS SQS
-  provider-rabbitmq/ ← Provider RabbitMQ
-  provider-redisstreams/ ← Provider Redis Streams
-  shared/           ← Utilitários compartilhados
+  provider-sqs/             ← Provider AWS SQS
+  provider-rabbitmq/        ← Provider RabbitMQ
+  provider-azureservicebus/ ← Provider Azure Service Bus
+  provider-redisstreams/   ← Provider Redis Streams
+  provider-natsjetstream/  ← Provider NATS JetStream
+  shared/                   ← Utilitários compartilhados
 ```
 
 Dependências:
@@ -131,6 +133,7 @@ pnpm test:e2e
 - [x] RabbitMQ provider (connect, list, publish, consume)
 - [x] Azure Service Bus provider (connect, list, publish, consume)
 - [x] Redis Streams provider (connect, list, publish, consume)
+- [x] NATS JetStream provider (connect, list, publish, consume)
 - [x] Normalização de mensagens via `QueueMessage`
 - [x] Tema dark/light
 - [x] Visualizador JSON

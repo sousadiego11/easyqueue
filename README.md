@@ -61,6 +61,7 @@ No browser tabs. No cloud dependency. Just your queues.
 ## Screenshots
 
 <p align="center">
+  <img src="./CONNCREATION.png" width="48%" alt="Connection Creation" />
   <img src="./DARK.png" width="48%" alt="Dark Theme" />
   <img src="./LIGHT.png" width="48%" alt="Light Theme" />
 </p>
@@ -69,7 +70,7 @@ No browser tabs. No cloud dependency. Just your queues.
 
 ## Highlights
 
-- ✅ RabbitMQ and AWS SQS in one place
+- ✅ RabbitMQ, AWS SQS, Azure Service Bus, Redis Streams, and NATS JetStream
 - ✅ Local-first desktop application
 - ✅ Connections stored locally
 - ✅ Encrypted credential storage
@@ -97,6 +98,8 @@ Your infrastructure stays under your control.
 | RabbitMQ | ✅ Supported |
 | AWS SQS | ✅ Supported |
 | Azure Service Bus | ✅ Supported |
+| Redis Streams | ✅ Supported |
+| NATS JetStream | ✅ Supported |
 
 ---
 
@@ -171,7 +174,9 @@ packages/
   core/
   provider-sqs/
   provider-rabbitmq/
+  provider-azureservicebus/
   provider-redisstreams/
+  provider-natsjetstream/
   shared/
 ```
 
@@ -230,6 +235,9 @@ Current providers:
 
 * RabbitMQ
 * AWS SQS
+* Azure Service Bus
+* Redis Streams
+* NATS JetStream
 
 ### Desktop
 
