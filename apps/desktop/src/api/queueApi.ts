@@ -22,6 +22,7 @@ export interface QueueApi {
   clientConnect(connectionId: string): Promise<ConnectionInfo>
   clientDisconnect(connectionId: string): Promise<ConnectionInfo>
   updateConnection(connectionId: string, name: string, provider: Provider, config: Record<string, unknown>): Promise<ConnectionInfo>
+  deleteConnection(connectionId: string): Promise<void>
   minimize(): void
   maximize(): void
   close(): void

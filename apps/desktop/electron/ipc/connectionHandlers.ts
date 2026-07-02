@@ -27,4 +27,8 @@ export function registerConnectionHandlers(connectionService: ConnectionService)
   ipcMain.handle(IPC_CHANNELS.UPDATE_CONNECTION, async (_event, connectionId: string, name: string, provider: Provider, config: Record<string, unknown>) => {
     return connectionService.updateConnection(connectionId, name, provider, config)
   })
+
+  ipcMain.handle(IPC_CHANNELS.DELETE_CONNECTION, async (_event, connectionId: string) => {
+    await connectionService.deleteConnection(connectionId)
+  })
 }

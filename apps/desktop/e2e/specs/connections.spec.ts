@@ -74,6 +74,27 @@ test("switching connections clears queue selection and disables action buttons",
   await expect(page.locator('button:has-text("Publish")')).toBeDisabled()
 })
 
+test("deletes a connection and resets UI when it was selected", async ({ page }) => {
+  await createConnection(page, "ToDelete")
+
+  await page.getByText("ToDelete").first().click()
+  await expect(page.locator('[data-active="true"]').first()).toContainText("ToDelete")
+
+  await page.getByText("ToDelete").first().hover()
+  const deleteBtn = page.getByRole("button", { name: "Delete ToDelete" }).first()
+  await expect(deleteBtn).toBeVisible()
+  await deleteBtn.click()
+
+  const dialog = page.getByRole("dialog")
+  await expect(dialog).toBeVisible()
+  await expect(dialog).toContainText("Delete Connection")
+  await dialog.getByRole("button", { name: "Delete" }).click()
+  await page.waitForTimeout(500)
+
+  await expect(page.getByText("ToDelete")).not.toBeVisible()
+  await expect(page.getByText("No connections")).toBeVisible()
+})
+
 test("shows validation error when required fields are empty", async ({ page }) => {
   await page.getByLabel("New connection").click()
   await page.waitForSelector('text=New Connection')

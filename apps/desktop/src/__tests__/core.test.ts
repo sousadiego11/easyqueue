@@ -51,12 +51,13 @@ describe("IPC_CHANNELS", () => {
     expect(IPC_CHANNELS.CLIENT_DISCONNECT).toBe("queue:client-disconnect")
     expect(IPC_CHANNELS.LIST_CONNECTIONS).toBe("queue:list-connections")
     expect(IPC_CHANNELS.UPDATE_CONNECTION).toBe("queue:update-connection")
+    expect(IPC_CHANNELS.DELETE_CONNECTION).toBe("queue:delete-connection")
     expect(IPC_CHANNELS.WINDOW_MINIMIZE).toBe("window:minimize")
     expect(IPC_CHANNELS.WINDOW_MAXIMIZE).toBe("window:maximize")
     expect(IPC_CHANNELS.WINDOW_CLOSE).toBe("window:close")
   })
 
   it("has correct number of channels", () => {
-    expect(Object.keys(IPC_CHANNELS)).toHaveLength(17)
+    expect(Object.keys(IPC_CHANNELS)).toHaveLength(18)
   })
 })

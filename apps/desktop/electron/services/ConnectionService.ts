@@ -161,6 +161,18 @@ export class ConnectionService {
     return client ? this.toConnectionInfo(client) : null
   }
 
+  async deleteConnection(connectionId: string): Promise<void> {
+    const client = this.clients.get(connectionId)
+    if (!client) throw new Error(`Connection ${connectionId} not found`)
+    try {
+      await client.disconnect()
+    } catch (err) {
+      console.error(`[ConnectionService] Error disconnecting ${connectionId}:`, err)
+    }
+    this.clients.delete(connectionId)
+    this.saveToDisk()
+  }
+
   async updateConnection(
     connectionId: string,
     name: string,

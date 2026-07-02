@@ -3,6 +3,7 @@ import type { ConnectionInfo } from "@/api/queueApi"
 
 const mockConnect = vi.fn()
 const mockDisconnect = vi.fn()
+const mockDeleteConnection = vi.fn()
 const mockListConnections = vi.fn()
 const mockUpdateConnection = vi.fn()
 const mockClientConnect = vi.fn()
@@ -28,6 +29,7 @@ vi.mock("@/api/queueApi", () => ({
     releaseMessage: (...args: unknown[]) => mockReleaseMessage(...args),
     releaseQueue: (...args: unknown[]) => mockReleaseQueue(...args),
     purgeQueue: (...args: unknown[]) => mockPurgeQueue(...args),
+    deleteConnection: (...args: unknown[]) => mockDeleteConnection(...args),
     minimize: vi.fn(),
     maximize: vi.fn(),
     close: vi.fn(),
@@ -190,6 +192,51 @@ describe("useConnectionStore", () => {
     mockUpdateConnection.mockRejectedValueOnce(new Error("update fail"))
     await expect(useConnectionStore.getState().updateConnection("conn-1", "New", "sqs", {})).rejects.toThrow("update fail")
     expect(useConnectionStore.getState().error).toBe("update fail")
+  })
+
+  it("deleteConnection removes a connection from the list", async () => {
+    const conn = makeConn({ id: "conn-1" })
+    useConnectionStore.setState({ connections: [conn] })
+    mockDeleteConnection.mockResolvedValueOnce(undefined)
+    await useConnectionStore.getState().deleteConnection("conn-1")
+    expect(useConnectionStore.getState().connections).toEqual([])
+  })
+
+  it("deleteConnection sets error on failure", async () => {
+    const conn = makeConn({ id: "conn-1" })
+    useConnectionStore.setState({ connections: [conn] })
+    mockDeleteConnection.mockRejectedValueOnce(new Error("delete fail"))
+    await expect(useConnectionStore.getState().deleteConnection("conn-1")).rejects.toThrow("delete fail")
+    expect(useConnectionStore.getState().error).toBe("delete fail")
+  })
+
+  it("deleteConnection does not remove other connections on error", async () => {
+    const conn = makeConn({ id: "conn-1" })
+    useConnectionStore.setState({ connections: [conn] })
+    mockDeleteConnection.mockRejectedValueOnce(new Error("fail"))
+    await expect(useConnectionStore.getState().deleteConnection("conn-1")).rejects.toThrow()
+    expect(useConnectionStore.getState().connections).toEqual([conn])
+  })
+
+  it("deleteConnection resets appStore when deleting current connection", async () => {
+    const conn = makeConn({ id: "conn-1" })
+    useConnectionStore.setState({ connections: [conn] })
+    useAppStore.setState({ currentConnection: conn, activeQueue: "orders" })
+    mockDeleteConnection.mockResolvedValueOnce(undefined)
+    await useConnectionStore.getState().deleteConnection("conn-1")
+    expect(useAppStore.getState().currentConnection).toBeNull()
+    expect(useAppStore.getState().activeQueue).toBe("")
+  })
+
+  it("deleteConnection keeps appStore when deleting non-current connection", async () => {
+    const conn = makeConn({ id: "conn-1" })
+    const conn2 = makeConn({ id: "conn-2" })
+    useConnectionStore.setState({ connections: [conn, conn2] })
+    useAppStore.setState({ currentConnection: conn2, activeQueue: "orders" })
+    mockDeleteConnection.mockResolvedValueOnce(undefined)
+    await useConnectionStore.getState().deleteConnection("conn-1")
+    expect(useAppStore.getState().currentConnection?.id).toBe("conn-2")
+    expect(useAppStore.getState().activeQueue).toBe("orders")
   })
 
   it("sets isLoading during connect", async () => {

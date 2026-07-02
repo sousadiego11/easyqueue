@@ -99,6 +99,12 @@ window.queueApi = {
     }
   },
 
+  async deleteConnection(connectionId) {
+    window.__connections = window.__connections.filter((c) => c.id !== connectionId)
+    window.__connected.delete(connectionId)
+    delete window.__messages[connectionId]
+  },
+
   minimize() {},
   maximize() {},
   close() {},
