@@ -16,6 +16,7 @@ interface ConnectionStore {
   updateConnection: (id: string, name: string, provider: Provider, config: Record<string, unknown>) => Promise<ConnectionInfo>
   toggleConnection: (id: string) => Promise<ConnectionInfo>
   deleteConnection: (id: string) => Promise<void>
+  resetStatus: () => void
 }
 
 export const useConnectionStore = create<ConnectionStore>((set, get) => ({
@@ -99,6 +100,8 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
       throw err
     }
   },
+
+  resetStatus: () => set({ isLoading: false, error: null }),
 
   toggleConnection: async (id) => {
     set({ isLoading: true, error: null })

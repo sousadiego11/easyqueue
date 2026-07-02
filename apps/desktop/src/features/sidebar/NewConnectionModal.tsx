@@ -169,6 +169,7 @@ function NewConnectionModal() {
   }, [editingConnectionId])
 
   function handleClose() {
+    useConnectionStore.getState().resetStatus()
     isEditing ? closeEditModal() : closeModal()
   }
 

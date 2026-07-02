@@ -95,6 +95,35 @@ test("deletes a connection and resets UI when it was selected", async ({ page })
   await expect(page.getByText("No connections")).toBeVisible()
 })
 
+test("closing modal resets stuck loading state", async ({ page }) => {
+  await page.getByLabel("New connection").click()
+  await page.waitForSelector('text=New Connection')
+
+  const dialog = page.getByRole("dialog")
+  await dialog.getByRole("button", { name: "Redis Streams Redis Streams" }).click()
+  await page.waitForSelector('text=Configure Redis Streams')
+  await dialog.getByPlaceholder("redis://localhost:6379").fill("redis://invalid:6379")
+
+  await page.evaluate(() => {
+    window.queueApi.connect = () => new Promise(() => {})
+  })
+
+  await dialog.getByRole("button", { name: "Connect" }).click()
+  await page.waitForTimeout(200)
+
+  await page.getByRole("button", { name: "Cancel" }).click()
+  await page.waitForTimeout(300)
+
+  await page.getByLabel("New connection").click()
+  await page.waitForSelector('text=New Connection')
+
+  await page.getByText("AWS SQS").click()
+  await page.waitForSelector('text=Configure AWS SQS')
+
+  const connectBtn = page.getByRole("button", { name: "Connect" })
+  await expect(connectBtn).toBeEnabled()
+})
+
 test("shows validation error when required fields are empty", async ({ page }) => {
   await page.getByLabel("New connection").click()
   await page.waitForSelector('text=New Connection')

@@ -239,6 +239,13 @@ describe("useConnectionStore", () => {
     expect(useAppStore.getState().activeQueue).toBe("orders")
   })
 
+  it("resetStatus clears loading and error", () => {
+    useConnectionStore.setState({ isLoading: true, error: "some error" })
+    useConnectionStore.getState().resetStatus()
+    expect(useConnectionStore.getState().isLoading).toBe(false)
+    expect(useConnectionStore.getState().error).toBeNull()
+  })
+
   it("sets isLoading during connect", async () => {
     let resolve: (v: unknown) => void = () => {}
     mockConnect.mockImplementationOnce(() => new Promise((r) => { resolve = r }))
