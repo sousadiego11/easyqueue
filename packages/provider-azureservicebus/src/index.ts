@@ -35,7 +35,12 @@ export class AzureServiceBusClient implements QueueClient {
     const cfg = this.config as AzureConfig
     try {
       this.client = new ServiceBusClient(cfg.connectionString)
+      await this.fetchQueuesViaRestApi(1)
     } catch (err) {
+      if (this.client) {
+        try { await this.client.close() } catch {}
+        this.client = null
+      }
       throw new QueueError(QueueErrorCode.CONNECTION_FAILED, "Failed to connect to Azure Service Bus", err)
     }
     this._connected = true
@@ -59,17 +64,19 @@ export class AzureServiceBusClient implements QueueClient {
     return queues.map((q) => ({ name: q }))
   }
 
-  private async fetchQueuesViaRestApi(): Promise<string[]> {
+  private async fetchQueuesViaRestApi(top?: number): Promise<string[]> {
     const cs = (this.config as AzureConfig).connectionString
     const isEmulator = cs.toLowerCase().includes("localhost") || cs.toLowerCase().includes("127.0.0.1") || cs.toLowerCase().includes("emulator")
     const host = cs.match(/Endpoint\s*=\s*sb:\/\/([^;]+)/i)?.[1] ?? ""
     const keyName = cs.match(/SharedAccessKeyName\s*=\s*([^;]+)/i)?.[1] ?? ""
     const key = cs.match(/SharedAccessKey\s*=\s*([^;]+)/i)?.[1] ?? ""
 
-    const hostWithPort = isEmulator && !host.includes(":") ? `${host}:5300` : host
+    const hostWithoutPort = host.split(":")[0]
+    const hostWithPort = isEmulator ? `${hostWithoutPort}:5300` : host
     const protocol = isEmulator ? "http" : "https"
     const baseUrl = `${protocol}://${hostWithPort}`
-    const url = `${baseUrl}/$Resources/Queues?api-version=2021-05`
+    const topParam = top !== undefined ? `&$top=${top}` : ""
+    const url = `${baseUrl}/$Resources/Queues?api-version=2021-05${topParam}`
 
     const token = this.generateSasToken(baseUrl, keyName, key)
 
@@ -114,6 +121,10 @@ export class AzureServiceBusClient implements QueueClient {
 
     await this.returnFetchedMessages(queue)
 
+    const oldReceiver = this.receivers.get(queue)
+    if (oldReceiver) {
+      try { await oldReceiver.close() } catch { }
+    }
     const receiver = this.client.createReceiver(queue, { receiveMode: "peekLock" })
     this.receivers.set(queue, receiver)
 

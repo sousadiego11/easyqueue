@@ -28,7 +28,10 @@
             ],
             "@easyqueue/provider-azureservicebus": [
                 "packages/provider-azureservicebus/src/index.ts"
-            ]
+            ],
+      "@easyqueue/provider-natsjetstream": [
+        "packages/provider-natsjetstream/src/index.ts"
+      ]
         }
     }
 }

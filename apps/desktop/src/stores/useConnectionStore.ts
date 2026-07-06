@@ -15,6 +15,8 @@ interface ConnectionStore {
   loadConnections: () => Promise<ConnectionInfo[]>
   updateConnection: (id: string, name: string, provider: Provider, config: Record<string, unknown>) => Promise<ConnectionInfo>
   toggleConnection: (id: string) => Promise<ConnectionInfo>
+  deleteConnection: (id: string) => Promise<void>
+  resetStatus: () => void
 }
 
 export const useConnectionStore = create<ConnectionStore>((set, get) => ({
@@ -76,6 +78,31 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
     }
   },
 
+  deleteConnection: async (id) => {
+    set({ isLoading: true, error: null })
+    try {
+      await queueApi.deleteConnection(id)
+      set((s) => ({
+        connections: s.connections.filter((c) => c.id !== id),
+        isLoading: false,
+      }))
+
+      const appState = useAppStore.getState()
+      if (appState.currentConnection?.id === id) {
+        appState.setCurrentConnection(null)
+      }
+
+      toast.success("Connection deleted")
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to delete connection"
+      set({ error: message, isLoading: false })
+      toast.error(message)
+      throw err
+    }
+  },
+
+  resetStatus: () => set({ isLoading: false, error: null }),
+
   toggleConnection: async (id) => {
     set({ isLoading: true, error: null })
     try {
@@ -102,6 +129,7 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to toggle connection"
       set({ error: message, isLoading: false })
+      toast.error(message)
       throw err
     }
   },

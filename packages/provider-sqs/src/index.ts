@@ -22,7 +22,7 @@ export class AWSSQSClient implements QueueClient {
 
   private client: SQSClient | null = null
   private queueUrls = new Map<string, string>()
-  private fetchedMessages = new Map<string, string>() // messageId -> receiptHandle
+  private fetchedMessages = new Map<string, { receiptHandle: string; queue: string }>()
 
   get connected() { return this._connected }
 
@@ -39,12 +39,8 @@ export class AWSSQSClient implements QueueClient {
     if (!config.secretAccessKey) throw new QueueError(QueueErrorCode.INVALID_CONFIGURATION, "SQS 'secretAccessKey' is required")
   }
 
-  private getSdkConfig(): SQSConfig {
-    return this.config as unknown as SQSConfig
-  }
-
   async connect(): Promise<void> {
-    const cfg = this.getSdkConfig()
+    const cfg = this.config as unknown as SQSConfig
 
     this.client = new SQSClient({
       region: cfg.region,
@@ -52,6 +48,7 @@ export class AWSSQSClient implements QueueClient {
         accessKeyId: cfg.accessKeyId,
         secretAccessKey: cfg.secretAccessKey,
       },
+      endpoint: cfg.endpoint,
     })
 
     try {
@@ -66,7 +63,7 @@ export class AWSSQSClient implements QueueClient {
   }
 
   async disconnect(): Promise<void> {
-    this.fetchedMessages.clear()
+    await this.returnFetchedMessages()
     this.client?.destroy()
     this.client = null
     this.queueUrls.clear()
@@ -130,7 +127,7 @@ export class AWSSQSClient implements QueueClient {
       const received = response.Messages ?? []
       for (const msg of received) {
         const queueMessage = this.toQueueMessage(queue, msg)
-        this.fetchedMessages.set(queueMessage.id, msg.ReceiptHandle!)
+        this.fetchedMessages.set(queueMessage.id, { receiptHandle: msg.ReceiptHandle!, queue })
         messages.push(queueMessage)
       }
 
@@ -145,31 +142,32 @@ export class AWSSQSClient implements QueueClient {
 
     const queueUrl = await this.resolveQueueUrl(request.queue)
 
+    let messageAttributes: Record<string, { DataType: "String"; StringValue: string }> | undefined
+    if (request.headers) {
+      messageAttributes = {}
+      for (const [k, v] of Object.entries(request.headers)) {
+        messageAttributes[k] = { DataType: "String", StringValue: v }
+      }
+    }
+
     await this.client.send(new SendMessageCommand({
       QueueUrl: queueUrl,
       MessageBody: typeof request.payload === "string" ? request.payload : JSON.stringify(request.payload),
-      MessageAttributes: request.headers
-        ? Object.fromEntries(
-          Object.entries(request.headers).map(([k, v]) => [
-            k,
-            { DataType: "String", StringValue: v },
-          ])
-        )
-        : undefined,
+      MessageAttributes: messageAttributes,
     }))
   }
 
   async deleteMessage(queue: string, messageId: string): Promise<void> {
     if (!this.client) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
 
-    const receiptHandle = this.fetchedMessages.get(messageId)
-    if (!receiptHandle) return
+    const entry = this.fetchedMessages.get(messageId)
+    if (!entry) return
 
     const queueUrl = await this.resolveQueueUrl(queue)
 
     await this.client.send(new DeleteMessageCommand({
       QueueUrl: queueUrl,
-      ReceiptHandle: receiptHandle,
+      ReceiptHandle: entry.receiptHandle,
     }))
 
     this.fetchedMessages.delete(messageId)
@@ -178,14 +176,14 @@ export class AWSSQSClient implements QueueClient {
   async releaseMessage(queue: string, messageId: string): Promise<void> {
     if (!this.client) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
 
-    const receiptHandle = this.fetchedMessages.get(messageId)
-    if (!receiptHandle) return
+    const entry = this.fetchedMessages.get(messageId)
+    if (!entry) return
 
     const queueUrl = await this.resolveQueueUrl(queue)
 
     await this.client.send(new ChangeMessageVisibilityCommand({
       QueueUrl: queueUrl,
-      ReceiptHandle: receiptHandle,
+      ReceiptHandle: entry.receiptHandle,
       VisibilityTimeout: 0,
     }))
 
@@ -195,19 +193,21 @@ export class AWSSQSClient implements QueueClient {
   async releaseQueue(queue: string): Promise<void> {
     if (!this.client) throw new QueueError(QueueErrorCode.PROVIDER_NOT_CONNECTED, "Not connected")
 
-    if (this.fetchedMessages.size === 0) return
-
     const queueUrl = await this.resolveQueueUrl(queue)
 
-    await Promise.all(
-      Array.from(this.fetchedMessages.entries()).map(([messageId, receiptHandle]) =>
-        this.client!.send(new ChangeMessageVisibilityCommand({
+    for (const [messageId, entry] of this.fetchedMessages) {
+      try {
+        await this.client.send(new ChangeMessageVisibilityCommand({
           QueueUrl: queueUrl,
-          ReceiptHandle: receiptHandle,
+          ReceiptHandle: entry.receiptHandle,
           VisibilityTimeout: 0,
-        })).then(() => this.fetchedMessages.delete(messageId))
-      )
-    )
+        }))
+      } catch (err) {
+        console.error("[AWSSQSClient] Failed to release message:", err)
+      }
+    }
+
+    this.fetchedMessages.clear()
   }
 
   async purgeQueue(queue: string): Promise<void> {
@@ -217,11 +217,11 @@ export class AWSSQSClient implements QueueClient {
 
     const queueUrl = await this.resolveQueueUrl(queue)
 
-    for (const [messageId, receiptHandle] of this.fetchedMessages) {
+    for (const [messageId, entry] of this.fetchedMessages) {
       try {
         await this.client.send(new DeleteMessageCommand({
           QueueUrl: queueUrl,
-          ReceiptHandle: receiptHandle,
+          ReceiptHandle: entry.receiptHandle,
         }))
       } catch (err) {
         console.error("[AWSSQSClient] Failed to delete message during purge:", err)
@@ -244,6 +244,22 @@ export class AWSSQSClient implements QueueClient {
 
     this.queueUrls.set(queue, response.QueueUrl)
     return response.QueueUrl
+  }
+
+  private async returnFetchedMessages(): Promise<void> {
+    for (const [messageId, entry] of this.fetchedMessages) {
+      try {
+        const queueUrl = this.queueUrls.get(entry.queue)
+        if (queueUrl && this.client) {
+          await this.client.send(new ChangeMessageVisibilityCommand({
+            QueueUrl: queueUrl,
+            ReceiptHandle: entry.receiptHandle,
+            VisibilityTimeout: 0,
+          }))
+        }
+      } catch { }
+    }
+    this.fetchedMessages.clear()
   }
 
   private toQueueMessage(queue: string, msg: Message): QueueMessage {

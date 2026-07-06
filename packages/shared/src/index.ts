@@ -15,6 +15,7 @@ export const IPC_CHANNELS = {
   CLIENT_DISCONNECT: "queue:client-disconnect",
   LIST_CONNECTIONS: "queue:list-connections",
   UPDATE_CONNECTION: "queue:update-connection",
+  DELETE_CONNECTION: "queue:delete-connection",
   WINDOW_MINIMIZE: "window:minimize",
   WINDOW_MAXIMIZE: "window:maximize",
   WINDOW_CLOSE: "window:close",

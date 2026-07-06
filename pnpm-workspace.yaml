@@ -4,4 +4,5 @@ packages:
 allowBuilds:
   electron: false
   esbuild: false
-onlyBuiltDependencies: ["electron", "esbuild"]
+  protobufjs: true
+onlyBuiltDependencies: [ "electron", "esbuild" ]

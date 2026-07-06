@@ -85,6 +85,18 @@ describe("useAppStore", () => {
     expect(useAppStore.getState().currentConnection).toBeNull()
   })
 
+  it("setCurrentConnection resets activeQueue and selectedMessageId", () => {
+    useAppStore.setState({ activeQueue: "orders", selectedMessageId: "msg-1" })
+    useAppStore.getState().setCurrentConnection({ id: "c2", name: "Other", provider: "sqs", connected: true, config: {} })
+    expect(useAppStore.getState().activeQueue).toBe("")
+    expect(useAppStore.getState().selectedMessageId).toBeNull()
+  })
+
+  it("setCurrentConnection calls clearMessages", () => {
+    useAppStore.getState().setCurrentConnection({ id: "c1", name: "Test", provider: "sqs", connected: true, config: {} })
+    expect(mockClearMessages).toHaveBeenCalled()
+  })
+
   it("setActiveQueue sets queue and calls clearMessages", () => {
     useAppStore.getState().setActiveQueue("orders")
     expect(useAppStore.getState().activeQueue).toBe("orders")

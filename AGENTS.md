@@ -7,7 +7,7 @@ Para detalhes operacionais de cada pacote/aplicativo, veja o `AGENTS.md` dentro 
 
 ## O que é
 
-EasyQueue é um aplicativo desktop para inspecionar, publicar e debugar mensagens de fila (SQS, RabbitMQ) — como um Postman, mas para message brokers.
+EasyQueue é um aplicativo desktop para inspecionar, publicar e debugar mensagens de fila (SQS, RabbitMQ, Azure Service Bus, Redis Streams, NATS JetStream) — como um Postman, mas para message brokers.
 
 ---
 
@@ -20,7 +20,7 @@ EasyQueue é um aplicativo desktop para inspecionar, publicar e debugar mensagen
 | Estado | Zustand v5 |
 | Desktop | Electron (via Vite plugin) |
 | Monorepo | pnpm workspaces (lockfile v9) |
-| Testes unitários | Vitest (cada app/package) |
+| Testes | Vitest (cada app/package) |
 | Testes e2e | Playwright (`apps/desktop`) |
 | CI | GitHub Actions (matrix: vitest + playwright) |
 
@@ -34,10 +34,12 @@ apps/
 
 packages/
   core/             ← Contratos comuns (QueueClient, QueueMessage, Connection)
-  provider-sqs/     ← Provider AWS SQS
-  provider-rabbitmq/ ← Provider RabbitMQ
-  provider-redisstreams/ ← Provider Redis Streams
-  shared/           ← Utilitários compartilhados
+  provider-sqs/             ← Provider AWS SQS
+  provider-rabbitmq/        ← Provider RabbitMQ
+  provider-azureservicebus/ ← Provider Azure Service Bus
+  provider-redisstreams/   ← Provider Redis Streams
+  provider-natsjetstream/  ← Provider NATS JetStream
+  shared/                   ← Utilitários compartilhados
 ```
 
 Dependências:
@@ -104,13 +106,11 @@ Pontos principais:
 ## Testes
 
 ```bash
-# Todos os testes
-pnpm test -r               # vitest em todos os pacotes
-pnpm test:e2e              # e2e em apps/desktop
+# Testes de todos os providers (e2e)
+pnpm test -r
 
-# CI roda em paralelo:
-#   unit  → vitest em apps/desktop + packages
-#   e2e   → playwright em apps/desktop
+# Testes e2e do desktop (Playwright)
+pnpm test:e2e
 ```
 
 ---
@@ -131,6 +131,9 @@ pnpm test:e2e              # e2e em apps/desktop
 ### Feito
 - [x] SQS provider (connect, list, publish, consume)
 - [x] RabbitMQ provider (connect, list, publish, consume)
+- [x] Azure Service Bus provider (connect, list, publish, consume)
+- [x] Redis Streams provider (connect, list, publish, consume)
+- [x] NATS JetStream provider (connect, list, publish, consume)
 - [x] Normalização de mensagens via `QueueMessage`
 - [x] Tema dark/light
 - [x] Visualizador JSON
@@ -142,8 +145,6 @@ pnpm test:e2e              # e2e em apps/desktop
 ### Próximos
 - [ ] Message re-drive (re-publicar em fila diferente)
 - [ ] Conexões persistidas (salvar config)
-- [ ] Azure Service Bus provider
-- [ ] Google Pub/Sub provider
 - [ ] Message diff
 - [ ] Message replay histórico
 - [ ] Plugin system para providers de terceiros

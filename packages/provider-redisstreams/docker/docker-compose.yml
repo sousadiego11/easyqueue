@@ -1,0 +1,27 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: easyqueue-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  init:
+    profiles: ["cli"]
+    image: redis:7-alpine
+    container_name: easyqueue-redis-init
+    depends_on:
+      redis:
+        condition: service_healthy
+    entrypoint: sh
+    command:
+      - -c
+      - |
+        for stream in orders payments notifications; do
+          echo "Creating stream: $$stream"
+          redis-cli -h redis XADD "$$stream" MAXLEN 0 * dummy 1
+        done
+        echo "Done!"

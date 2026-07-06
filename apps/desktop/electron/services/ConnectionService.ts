@@ -7,6 +7,7 @@ import path from "path"
 import fs from "fs"
 import { RedisStreamClient } from "@easyqueue/provider-redisstreams"
 import { AzureServiceBusClient } from "@easyqueue/provider-azureservicebus"
+import { NatsJetStreamClient } from "@easyqueue/provider-natsjetstream"
 
 interface StoredConnection {
   id: string
@@ -84,29 +85,33 @@ export class ConnectionService {
     }
   }
 
+  private createClient(
+    name: string,
+    provider: Provider,
+    config: Record<string, unknown>
+  ): QueueClient {
+    switch (provider) {
+      case "rabbitmq":
+        return new RabbitMqClient(config as any, name)
+      case "sqs":
+        return new AWSSQSClient(config as any, name)
+      case "redis":
+        return new RedisStreamClient(config as any, name)
+      case "azureservicebus":
+        return new AzureServiceBusClient(config as any, name)
+      case "natsjetstream":
+        return new NatsJetStreamClient(config as any, name)
+      default:
+        throw new Error(`Provider ${provider} not supported`)
+    }
+  }
+
   async connect(
     name: string,
     provider: Provider,
     config: Record<string, unknown>
   ): Promise<ConnectionInfo> {
-    let client: QueueClient
-
-    switch (provider) {
-      case "rabbitmq":
-        client = new RabbitMqClient(config as any, name)
-        break
-      case "sqs":
-        client = new AWSSQSClient(config as any, name)
-        break
-      case "redis":
-        client = new RedisStreamClient(config as any, name)
-        break
-      case "azureservicebus":
-        client = new AzureServiceBusClient(config as any, name)
-        break
-      default:
-        throw new Error(`Provider ${provider} not supported`)
-    }
+    const client = this.createClient(name, provider, config)
 
     try {
       await client.connect()
@@ -154,6 +159,18 @@ export class ConnectionService {
   getConnection(connectionId: string): ConnectionInfo | null {
     const client = this.clients.get(connectionId)
     return client ? this.toConnectionInfo(client) : null
+  }
+
+  async deleteConnection(connectionId: string): Promise<void> {
+    const client = this.clients.get(connectionId)
+    if (!client) throw new Error(`Connection ${connectionId} not found`)
+    try {
+      await client.disconnect()
+    } catch (err) {
+      console.error(`[ConnectionService] Error disconnecting ${connectionId}:`, err)
+    }
+    this.clients.delete(connectionId)
+    this.saveToDisk()
   }
 
   async updateConnection(

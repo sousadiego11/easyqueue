@@ -1,0 +1,35 @@
+services:
+  localstack:
+    image: localstack/localstack:3.8.1
+    container_name: easyqueue-sqs
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: sqs
+      AWS_DEFAULT_REGION: us-east-1
+      SKIP_SIGNATURE_VALIDATION: 1
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      retries: 10
+
+  init:
+    profiles: ["cli"]
+    image: amazon/aws-cli:latest
+    container_name: easyqueue-sqs-init
+    depends_on:
+      localstack:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: sh
+    command:
+      - -c
+      - |
+        for queue in orders payments notifications; do
+          echo "Creating queue: $$queue"
+          aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name "$$queue" --region us-east-1
+        done
+        echo "Done!"

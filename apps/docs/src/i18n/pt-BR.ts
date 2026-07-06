@@ -14,7 +14,7 @@ export default {
     title: "EasyQueue",
     tagline: "O Postman para Mensageria",
     subtitle:
-      "Um app desktop para inspecionar, publicar e debugar mensagens de filas RabbitMQ, AWS SQS, Azure Service Bus e muito mais — tudo em uma interface unificada.",
+      "Um app desktop para inspecionar, publicar e debugar mensagens em RabbitMQ, AWS SQS, Azure Service Bus, Redis Streams e NATS JetStream em uma interface unificada.",
     cta: {
       download: "Baixar EasyQueue",
       github: "GitHub",
@@ -53,6 +53,7 @@ export default {
     labels: {
       dark: "Tema escuro (padrão)",
       light: "Tema claro",
+      connection: "Criação de conexão",
       animated: "Fluxo completo em ação",
     },
   },
@@ -90,13 +91,14 @@ export default {
       },
       {
         title: "Múltiplos providers",
-        desc: "Conecte-se a RabbitMQ, AWS SQS, Redis Streams e Azure Service Bus em paralelo. Google Pub/Sub em breve.",
+        desc: "Conecte-se aos cinco providers suportados: RabbitMQ, AWS SQS, Redis Streams, Azure Service Bus e NATS JetStream.",
       },
     ],
   },
   brokers: {
     title: "Brokers suportados",
-    subtitle: "Provider-agnostic por design. Conecte-se a qualquer broker com uma interface unificada.",
+    subtitle: "Cinco providers são suportados hoje por uma interface unificada.",
+    note: "Suportados atualmente: RabbitMQ, AWS SQS, Azure Service Bus, Redis Streams e NATS JetStream. MQTT, Kafka e Google Pub/Sub ainda não são suportados.",
     badge: {
       supported: "Suportado",
       planned: "Previsto",
@@ -115,12 +117,12 @@ export default {
         desc: "Filas e tópicos do Azure com suporte a connection string, recebimento peek-lock, complete e abandon.",
       },
       {
-        name: "Google Pub/Sub",
-        desc: "Suporte a tópicos e subscriptions do Google Cloud. Em desenvolvimento.",
+        name: "Redis Streams",
+        desc: "Redis Streams com consumer groups, XREADGROUP, XACK e gerenciamento completo de streams.",
       },
       {
-        name: "Redis",
-        desc: "Redis Streams com consumer groups, XREADGROUP, XACK e gerenciamento completo de streams.",
+        name: "NATS JetStream",
+        desc: "NATS JetStream com pull consumers, assinaturas duráveis e gerenciamento de mensagens baseado em streams.",
       },
     ],
   },

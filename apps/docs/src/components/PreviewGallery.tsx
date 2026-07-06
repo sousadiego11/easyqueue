@@ -13,6 +13,7 @@ import "yet-another-react-lightbox/plugins/captions.css"
 const images = [
   { src: "/assets/dark.png", labelKey: "dark" },
   { src: "/assets/light.png", labelKey: "light" },
+  { src: "/assets/conn.png", labelKey: "connection" }
 ]
 
 export function PreviewGallery() {
@@ -23,6 +24,7 @@ export function PreviewGallery() {
   const slides: Slide[] = [
     { src: "/assets/dark.png", title: t("preview.labels.dark") },
     { src: "/assets/light.png", title: t("preview.labels.light") },
+    { src: "/assets/conn.png", title: t("preview.labels.connection") },
     {
       type: "video",
       sources: [
@@ -53,7 +55,7 @@ export function PreviewGallery() {
           {t("preview.subtitle")}
         </motion.p>
 
-        <div className="grid gap-6 md:grid-cols-2 mb-6">
+        <div className="grid gap-6 md:grid-cols-3 mb-6">
           {images.map((img, i) => (
             <motion.div
               key={img.labelKey}

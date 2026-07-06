@@ -1,13 +1,16 @@
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { StatusDot } from "@/components/ui/StatusDot"
 import { EmptyState } from "@/components/ui/EmptyState"
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useAppStore } from "@/stores/useAppStore"
 import { useConnectionStore } from "@/stores/useConnectionStore"
-import { Plug, Plus, Pencil, Power, PowerOff } from "lucide-react"
+import { Plug, Plus, Pencil, Power, PowerOff, Trash2 } from "lucide-react"
 import sqsIcon from "@/icons/SQS.svg"
 import rabbitIcon from "@/icons/RABBIT.svg"
 import redisIcon from "@/icons/REDIS.svg"
 import azureIcon from "@/icons/AZURE.svg"
+import natsIcon from "@/icons/NATS.svg"
 import type { Provider } from "@easyqueue/core"
 
 const providerIcon: Record<Provider, string> = {
@@ -15,6 +18,7 @@ const providerIcon: Record<Provider, string> = {
   rabbitmq: rabbitIcon,
   redis: redisIcon,
   azureservicebus: azureIcon,
+  natsjetstream: natsIcon,
 }
 
 function providerIconSrc(provider: string): string {
@@ -22,12 +26,28 @@ function providerIconSrc(provider: string): string {
 }
 
 function ConnectionList() {
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   const connections = useConnectionStore((s) => s.connections)
   const toggleConnection = useConnectionStore((s) => s.toggleConnection)
+  const deleteConnection = useConnectionStore((s) => s.deleteConnection)
   const currentConnection = useAppStore((s) => s.currentConnection)
   const setCurrentConnection = useAppStore((s) => s.setCurrentConnection)
   const openNewConnectionModal = useAppStore((s) => s.openNewConnectionModal)
   const openEditConnectionModal = useAppStore((s) => s.openEditConnectionModal)
+
+  async function handleDelete() {
+    if (!deleteTarget) return
+    setIsDeleting(true)
+    try {
+      await deleteConnection(deleteTarget)
+      setDeleteTarget(null)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const targetConn = deleteTarget ? connections.find((c) => c.id === deleteTarget) : null
 
   return (
     <div>
@@ -60,6 +80,13 @@ function ConnectionList() {
                 <Pencil className="h-3 w-3" />
               </button>
               <button
+                onClick={(e) => { e.stopPropagation(); setDeleteTarget(c.id) }}
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:text-destructive"
+                aria-label={`Delete ${c.name}`}
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+              <button
                 onClick={(e) => { e.stopPropagation(); toggleConnection(c.id) }}
                 className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:text-foreground"
                 aria-label={c.connected ? `Disconnect ${c.name}` : `Connect ${c.name}`}
@@ -71,6 +98,23 @@ function ConnectionList() {
           ))
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}
+        title="Delete Connection"
+        description={
+          targetConn ? (
+            <>This will permanently remove <strong>{targetConn.name}</strong>. This action cannot be undone.</>
+          ) : (
+            "Are you sure?"
+          )
+        }
+        actionLabel="Delete"
+        onConfirm={handleDelete}
+        loading={isDeleting}
+        icon={Trash2}
+      />
     </div>
   )
 }

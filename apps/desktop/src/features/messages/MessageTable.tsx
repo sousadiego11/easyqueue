@@ -39,6 +39,7 @@ function MessageTable() {
   const selectedMessage = useMessageStore((s) => s.selectedMessage)
   const setSelectedMessage = useMessageStore((s) => s.setSelectedMessage)
   const isLoading = useMessageStore((s) => s.isLoadingMessages)
+  const error = useMessageStore((s) => s.error)
 
   const [sortField, setSortField] = useState<SortField>("time")
   const [sortDir, setSortDir] = useState<SortDir>("desc")
@@ -121,7 +122,13 @@ function MessageTable() {
         </div>
 
         <div className="overflow-y-auto flex-1 min-h-0">
-          {isLoading ? (
+          {error ? (
+            <div className="flex flex-col items-center justify-center gap-2 h-full text-muted-foreground">
+              <Inbox className="h-12 w-12 stroke-[1.5] text-destructive/60" />
+              <span className="text-sm font-medium text-destructive">Failed to load messages</span>
+              <span className="text-xs text-muted-foreground/60">{error}</span>
+            </div>
+          ) : isLoading ? (
             <div className="flex flex-col items-center justify-center gap-3 h-full text-muted-foreground">
               <Loader2 className="h-8 w-8 animate-spin" />
               <span className="text-sm">Loading messages...</span>

@@ -10,7 +10,10 @@
     "build:docs": "pnpm --filter @easyqueue/docs build",
     "build": "pnpm --filter @easyqueue/desktop build",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm --filter @easyqueue/desktop test && pnpm --filter @easyqueue/provider-sqs test && pnpm --filter @easyqueue/provider-rabbitmq test && pnpm --filter @easyqueue/provider-redisstreams test && pnpm --filter @easyqueue/provider-azureservicebus test",
+    "test": "pnpm --recursive test",
+    "test:e2e": "pnpm --recursive test:e2e",
+    "docker:up": "pnpm --recursive docker:up",
+    "docker:down": "pnpm --recursive docker:down",
     "clean": "pnpm -r clean"
   },
   "version": "1.6.0",

@@ -35,7 +35,13 @@ export const useAppStore = create<AppStore>((set) => ({
     }),
 
   currentConnection: null,
-  setCurrentConnection: (conn) => set({ currentConnection: conn }),
+  setCurrentConnection: (conn) => {
+    set((s) => {
+      if (s.currentConnection?.id === conn?.id) return { currentConnection: conn }
+      useMessageStore.getState().clearMessages()
+      return { currentConnection: conn, activeQueue: "", selectedMessageId: null }
+    })
+  },
 
   activeQueue: "",
   setActiveQueue: (q) => {

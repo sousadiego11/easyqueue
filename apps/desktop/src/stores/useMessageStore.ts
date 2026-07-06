@@ -31,6 +31,7 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to load messages"
       set({ error: message, isLoadingMessages: false })
+      throw err
     }
   },
 
