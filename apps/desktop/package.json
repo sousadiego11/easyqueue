@@ -1,6 +1,6 @@
 {
   "name": "@easyqueue/desktop",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Postman for Message Brokers — inspect, publish, and debug queue messages",
   "author": {
     "name": "Diego Sousa",
