@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/sousadiego11/easyqueue/compare/v1.7.0...v1.7.1) (2026-07-06)
+
+
+### Bug Fixes
+
+* trigger release ([6b48218](https://github.com/sousadiego11/easyqueue/commit/6b48218e99b916a9a006bdc2cbedaf1d3541dae4))
+
 ## [1.7.0](https://github.com/sousadiego11/easyqueue/compare/v1.6.0...v1.7.0) (2026-07-06)
 
 
