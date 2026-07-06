@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  Inspect, publish, consume, and debug queue messages from a single desktop application.
+  Inspect, publish, consume, and debug queue messages across AWS SQS, RabbitMQ, Azure Service Bus, Redis Streams, and NATS JetStream from a single desktop application.
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@
 
 ## Why EasyQueue?
 
-Working with message queues often means jumping between multiple tools:
+Working with message brokers often means jumping between multiple tools:
 
 - AWS Console
 - RabbitMQ Management UI
@@ -70,7 +70,7 @@ No browser tabs. No cloud dependency. Just your queues.
 
 ## Highlights
 
-- ✅ RabbitMQ, AWS SQS, Azure Service Bus, Redis Streams, and NATS JetStream
+- ✅ Five supported providers: RabbitMQ, AWS SQS, Azure Service Bus, Redis Streams, and NATS JetStream
 - ✅ Local-first desktop application
 - ✅ Connections stored locally
 - ✅ Encrypted credential storage

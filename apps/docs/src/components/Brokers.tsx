@@ -24,7 +24,7 @@ export function Brokers() {
     RabbitMQ: true,
     "AWS SQS": true,
     "Azure Service Bus": true,
-    Redis: true,
+    "Redis Streams": true,
     "NATS JetStream": true
   }
 
@@ -47,6 +47,15 @@ export function Brokers() {
           transition={{ delay: 0.1 }}
         >
           {t("brokers.subtitle")}
+        </motion.p>
+        <motion.p
+          className="mx-auto mb-10 max-w-[760px] text-center text-sm text-text-secondary"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.15 }}
+        >
+          {t("brokers.note")}
         </motion.p>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

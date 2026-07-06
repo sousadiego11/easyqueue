@@ -14,7 +14,7 @@ export default {
     title: "EasyQueue",
     tagline: "The Postman for Message Brokers",
     subtitle:
-      "A desktop app to inspect, publish, and debug queue messages on RabbitMQ, AWS SQS, Azure Service Bus, and more — all in one unified interface.",
+      "A desktop app to inspect, publish, and debug queue messages on RabbitMQ, AWS SQS, Azure Service Bus, Redis Streams, and NATS JetStream in one unified interface.",
     cta: {
       download: "Download EasyQueue",
       github: "GitHub",
@@ -91,13 +91,14 @@ export default {
       },
       {
         title: "Multiple providers",
-        desc: "Connect to RabbitMQ, AWS SQS, Redis Streams, Azure Service Bus, and NATS JetStream in parallel.",
+        desc: "Connect to the five supported providers: RabbitMQ, AWS SQS, Redis Streams, Azure Service Bus, and NATS JetStream.",
       },
     ],
   },
   brokers: {
     title: "Supported Brokers",
-    subtitle: "Provider-agnostic by design. Connect to any broker with a unified interface.",
+    subtitle: "Five providers are currently supported through one unified interface.",
+    note: "Currently supported: RabbitMQ, AWS SQS, Azure Service Bus, Redis Streams, and NATS JetStream.",
     badge: {
       supported: "Supported",
       planned: "Planned",
@@ -116,7 +117,7 @@ export default {
         desc: "Azure queues and topics with connection string support, peek-lock receive, complete, and abandon operations.",
       },
       {
-        name: "Redis",
+        name: "Redis Streams",
         desc: "Redis Streams with consumer groups, XREADGROUP, XACK, and full stream management.",
       },
       {
