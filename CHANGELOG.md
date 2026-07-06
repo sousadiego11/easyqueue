@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.7.0](https://github.com/sousadiego11/easyqueue/compare/v1.6.0...v1.7.0) (2026-07-06)
+
+
+### Features
+
+* add connection creation to gallery ([b5bc1e9](https://github.com/sousadiego11/easyqueue/commit/b5bc1e9683d7a7fa50381ec2dc0a9005c5864809))
+* add error feedback for connection error ([7558bb7](https://github.com/sousadiego11/easyqueue/commit/7558bb76892720d313939d7278b6692d865d3ced))
+* add possibility to delete connections ([482a74c](https://github.com/sousadiego11/easyqueue/commit/482a74c64b24c574f442cc3f3b208bb964d4d452))
+* create provider for jetstream and create test environments for providers ([be33706](https://github.com/sousadiego11/easyqueue/commit/be3370671540b37234151977391a5ca49e117557))
+
+
+### Bug Fixes
+
+* add connection validation for azure service bus ([64c809d](https://github.com/sousadiego11/easyqueue/commit/64c809df9618808088b87b453cc6852311d2e696))
+* adjust linux build to add path and correct icons ([127b8bc](https://github.com/sousadiego11/easyqueue/commit/127b8bce6d87cc3033dae9b24fc34dc0713e2ec0))
+* adjust modal to reset its state after closing ([2af77dd](https://github.com/sousadiego11/easyqueue/commit/2af77ddc2cd957fdef65859fd5582f99b3b0b1bd))
+* handle errors from loading messages ([5deeec0](https://github.com/sousadiego11/easyqueue/commit/5deeec040b1828c1c7068112507253b881b9354e))
+
 ## [1.6.0](https://github.com/sousadiego11/easyqueue/compare/v1.5.0...v1.6.0) (2026-06-29)
 
 
