@@ -16,6 +16,6 @@
     "docker:down": "pnpm --recursive docker:down",
     "clean": "pnpm -r clean"
   },
-  "version": "1.7.0",
+  "version": "1.7.1",
   "license": "MIT"
 }
